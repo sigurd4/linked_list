@@ -171,8 +171,8 @@ namespace sss
     };
 }
 
-#include "list_fwd/link.hpp"
-#include "list_fwd/iter.hpp"
-#include "list_fwd/iter_mut.hpp"
+#include "forward_list/link.hpp"
+#include "forward_list/iter.hpp"
+#include "forward_list/iter_mut.hpp"
 
-#include "list_fwd.cpp"
+#include "forward_list.cpp"

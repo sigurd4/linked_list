@@ -5,7 +5,7 @@
 #include <string>
 
 #include "list.hpp"
-#include "list_fwd.hpp"
+#include "forward_list.hpp"
 
 template<typename L>
 std::string fmt_list(const L& x);
