@@ -5,62 +5,65 @@
 namespace sss
 {
     template<typename T>
-    class List<T>::Link
+    class list<T>::link
     {
         public:
             T value;
-            std::optional<std::unique_ptr<Link>> next {std::nullopt};
-            std::optional<std::reference_wrapper<Link>> prev {std::nullopt};
+            std::optional<std::unique_ptr<link>> next {std::nullopt};
+            std::optional<std::reference_wrapper<link>> prev {std::nullopt};
 
         public:
-            constexpr Link(void) noexcept;
-            constexpr explicit Link(const Link& link, std::optional<std::reference_wrapper<Link>> prev) noexcept;
-            constexpr Link(Link&& link) noexcept;
-            constexpr Link(T&& value) noexcept;
+            constexpr link(void) noexcept;
+            constexpr explicit link(
+                const list<T>::link& link,
+                std::optional<std::reference_wrapper<list<T>::link>> prev
+            ) noexcept;
+            constexpr link(link&& link) noexcept;
+            constexpr link(T&& value) noexcept;
 
             template<typename... Args>
-            static constexpr Link make(Args&&... args);
+            static constexpr link make(Args&&... args);
 
-            constexpr Iter cbegin(void) const noexcept;
-            constexpr Iter cend(void) const noexcept;
-            constexpr IterMut begin(void) noexcept;
-            constexpr IterMut end(void) noexcept;
-            constexpr Iter begin(void) const noexcept;
-            constexpr Iter end(void) const noexcept;
+            constexpr const_iterator cbegin(void) const noexcept;
+            constexpr const_iterator cend(void) const noexcept;
+            constexpr iterator begin(void) noexcept;
+            constexpr iterator end(void) noexcept;
+            constexpr const_iterator begin(void) const noexcept;
+            constexpr const_iterator end(void) const noexcept;
             
-            constexpr Iter rcbegin(void) const noexcept;
-            constexpr Iter rcend(void) const noexcept;
-            constexpr IterMut rbegin(void) noexcept;
-            constexpr IterMut rend(void) noexcept;
-            constexpr Iter rbegin(void) const noexcept;
-            constexpr Iter rend(void) const noexcept;
+            constexpr const_iterator rcbegin(void) const noexcept;
+            constexpr const_iterator rcend(void) const noexcept;
+            constexpr iterator rbegin(void) noexcept;
+            constexpr iterator rend(void) noexcept;
+            constexpr const_iterator rbegin(void) const noexcept;
+            constexpr const_iterator rend(void) const noexcept;
 
-            constexpr std::optional<std::reference_wrapper<const Link>> next_link(void) const noexcept;
-            constexpr std::optional<std::reference_wrapper<Link>> next_link(void) noexcept;
+            constexpr std::optional<std::reference_wrapper<const link>> next_link(void) const noexcept;
+            constexpr std::optional<std::reference_wrapper<link>> next_link(void) noexcept;
             
-            constexpr std::optional<std::reference_wrapper<const Link>> prev_link(void) const noexcept;
-            constexpr std::optional<std::reference_wrapper<Link>> prev_link(void) noexcept;
+            constexpr std::optional<std::reference_wrapper<const link>> prev_link(void) const noexcept;
+            constexpr std::optional<std::reference_wrapper<link>> prev_link(void) noexcept;
 
-            constexpr const Link& last_link(void) const noexcept;
-            constexpr Link& last_link(void) noexcept;
+            constexpr const link& last_link(void) const noexcept;
+            constexpr link& last_link(void) noexcept;
             
-            constexpr const Link& first_link(void) const noexcept;
-            constexpr Link& first_link(void) noexcept;
+            constexpr const link& first_link(void) const noexcept;
+            constexpr link& first_link(void) noexcept;
 
-            constexpr Link& append(List&& next) noexcept;
-            constexpr Link& append(Link&& next) noexcept;
-            constexpr Link& prepend(List&& prev) noexcept;
-            constexpr Link& prepend(Link&& prev) noexcept;
-            constexpr std::pair<Link, std::optional<Link>>
-                pop(std::optional<std::reference_wrapper<Link>> prev) noexcept;
+            constexpr link& append(list&& next) noexcept;
+            constexpr link& append(link&& next) noexcept;
+            constexpr link& prepend(list&& prev) noexcept;
+            constexpr link& prepend(link&& prev) noexcept;
+            constexpr std::pair<link, std::optional<link>>
+                pop(std::optional<std::reference_wrapper<link>> prev) noexcept;
             
-            constexpr List split_in_half(void) noexcept;
+            constexpr list split_in_half(void) noexcept;
             template<typename F>
-            constexpr void merge(Link&& link, F&& cmp) noexcept;
+            constexpr void merge(link&& link, F&& cmp) noexcept;
             template<typename F>
-            constexpr void merge(Link&& link, const F& cmp) noexcept;
+            constexpr void merge(link&& link, const F& cmp) noexcept;
 
-            constexpr void operator=(Link&& link) noexcept;
+            constexpr void operator=(link&& link) noexcept;
     };
 }
 

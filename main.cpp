@@ -393,21 +393,21 @@ void test_operations()
 
 int main()
 {
-    test_constructor<sss::List<int_nocopy>, sss::List<int>>();
-    test_assign<sss::List<int_nocopy>, sss::List<int>>();
-    test_front_back<sss::List<int_nocopy>>();
-    test_double_sided_iter<sss::List<int_nocopy>>();
-    test_capacity<sss::List<int_nocopy>>();
-    test_modifiers<sss::List<int_nocopy>, sss::List<int>>();
-    test_operations<sss::List<int_nocopy>, sss::List<int>>();
+    test_constructor<sss::list<int_nocopy>, sss::list<int>>();
+    test_assign<sss::list<int_nocopy>, sss::list<int>>();
+    test_front_back<sss::list<int_nocopy>>();
+    test_double_sided_iter<sss::list<int_nocopy>>();
+    test_capacity<sss::list<int_nocopy>>();
+    test_modifiers<sss::list<int_nocopy>, sss::list<int>>();
+    test_operations<sss::list<int_nocopy>, sss::list<int>>();
     
-    test_constructor<sss::ListFwd<int_nocopy>, sss::ListFwd<int>>();
-    test_assign<sss::ListFwd<int_nocopy>, sss::ListFwd<int>>();
-    test_front_back<sss::ListFwd<int_nocopy>>();
-    test_iter<sss::ListFwd<int_nocopy>>();
-    test_capacity<sss::ListFwd<int_nocopy>>();
-    test_modifiers<sss::ListFwd<int_nocopy>, sss::ListFwd<int>>();
-    test_operations<sss::ListFwd<int_nocopy>, sss::ListFwd<int>>();
+    test_constructor<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
+    test_assign<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
+    test_front_back<sss::forward_list<int_nocopy>>();
+    test_iter<sss::forward_list<int_nocopy>>();
+    test_capacity<sss::forward_list<int_nocopy>>();
+    test_modifiers<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
+    test_operations<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
 }
 
 template<typename L>

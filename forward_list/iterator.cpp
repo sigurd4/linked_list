@@ -1,41 +1,41 @@
-#include "iter_mut.hpp"
+#include "iterator.hpp"
 
 namespace sss
 {
     template<typename T>
-    constexpr ListFwd<T>::IterMut::IterMut(void) noexcept:
+    constexpr forward_list<T>::iterator::iterator(void) noexcept:
         link {std::nullopt}
     {
 
     }
 
     template<typename T>
-    constexpr ListFwd<T>::IterMut::IterMut(Link& link) noexcept:
+    constexpr forward_list<T>::iterator::iterator(forward_list<T>::link& link) noexcept:
         link {link}
     {
 
     }
 
     template<typename T>
-    constexpr ListFwd<T>::IterMut::IterMut(ListFwd& list) noexcept:
+    constexpr forward_list<T>::iterator::iterator(forward_list& list) noexcept:
         link {list.get_first_link()}
     {
 
     }
 
     template<typename T>
-    constexpr std::optional<std::reference_wrapper<typename ListFwd<T>::Link>>
-        ListFwd<T>::IterMut::get_link() const noexcept
+    constexpr std::optional<std::reference_wrapper<typename forward_list<T>::link>>
+        forward_list<T>::iterator::get_link() const noexcept
     {
         return this->link;
     }
 
     template<typename T>
-    constexpr std::optional<std::reference_wrapper<T>> ListFwd<T>::IterMut::next(void) noexcept
+    constexpr std::optional<std::reference_wrapper<T>> forward_list<T>::iterator::next(void) noexcept
     {
         if(this->link.has_value())
         {
-            Link& link = this->link.value();
+            link& link = this->link.value();
             T& value = link.value;
             this->link = link.next_link();
             return {value};
@@ -44,59 +44,59 @@ namespace sss
     }
 
     template<typename T>
-    constexpr typename ListFwd<T>::IterMut ListFwd<T>::IterMut::begin(void) const noexcept
+    constexpr typename forward_list<T>::iterator forward_list<T>::iterator::begin(void) const noexcept
     {
         return *this;
     }
     template<typename T>
-    constexpr typename ListFwd<T>::IterMut ListFwd<T>::IterMut::end(void) const noexcept
+    constexpr typename forward_list<T>::iterator forward_list<T>::iterator::end(void) const noexcept
     {
         return {};
     }
     template<typename T>
-    constexpr typename ListFwd<T>::IterMut ListFwd<T>::IterMut::cbegin(void) const noexcept
+    constexpr typename forward_list<T>::iterator forward_list<T>::iterator::cbegin(void) const noexcept
     {
         return *this;
     }
     template<typename T>
-    constexpr typename ListFwd<T>::IterMut ListFwd<T>::IterMut::cend(void) const noexcept
+    constexpr typename forward_list<T>::iterator forward_list<T>::iterator::cend(void) const noexcept
     {
         return {};
     }
 
     template<typename T>
-    constexpr T& ListFwd<T>::IterMut::operator*(void) const
+    constexpr T& forward_list<T>::iterator::operator*(void) const
     {
         return this->link.value().get().value;
     }
     template<typename T>
-    constexpr T* ListFwd<T>::IterMut::operator->(void) const
+    constexpr T* forward_list<T>::iterator::operator->(void) const
     {
         return &this->link.value().get().value;
     }
     template<typename T>
-    constexpr typename ListFwd<T>::IterMut& ListFwd<T>::IterMut::operator++() noexcept
+    constexpr typename forward_list<T>::iterator& forward_list<T>::iterator::operator++() noexcept
     {
         if(this->link.has_value())
         {
-            Link& link = this->link.value();
+            forward_list<T>::link& link = this->link.value();
             this->link = link.next_link();
         }
         return *this;
     }
     template<typename T>
-    constexpr typename ListFwd<T>::IterMut ListFwd<T>::IterMut::operator++(int) noexcept
+    constexpr typename forward_list<T>::iterator forward_list<T>::iterator::operator++(int) noexcept
     {
-        IterMut copy = *this;
+        iterator copy = *this;
         if(this->link.has_value())
         {
-            Link& link = this->link.value();
+            forward_list<T>::link& link = this->link.value();
             this->link = link.next_link();
         }
         return copy;
     }
     template<typename T>
-    constexpr void ListFwd<T>::IterMut::operator+=(size_t steps) noexcept
+    constexpr void forward_list<T>::iterator::operator+=(size_t steps) noexcept
     {
         for(; steps > 0; steps--)
         {
@@ -104,13 +104,13 @@ namespace sss
             {
                 break;
             }
-            Link& link = this->link.value();
+            forward_list<T>::link& link = this->link.value();
             this->link = link.next_link();
         }
     }
 
     template<typename T>
-    constexpr bool ListFwd<T>::IterMut::eq(const IterMut& rhs) const noexcept
+    constexpr bool forward_list<T>::iterator::eq(const iterator& rhs) const noexcept
     {
         if(!this->get_link().has_value())
         {

@@ -6,32 +6,32 @@
 namespace sss
 {
     template<typename T>
-    class ListFwd
+    class forward_list
     {
         private:
-            class Link;
+            class link;
 
         public:
-            class Iter;
-            class IterMut;
+            class const_iterator;
+            class iterator;
 
         private:
-            std::optional<Link> first;
+            std::optional<link> first;
 
-            constexpr ListFwd(Link&& first) noexcept;
-            constexpr ListFwd(std::optional<Link>&& first) noexcept;
+            constexpr forward_list(link&& first) noexcept;
+            constexpr forward_list(std::optional<link>&& first) noexcept;
         public:
-            constexpr ListFwd(void) noexcept;
-            constexpr ListFwd(size_t count, const T& value) noexcept;
-            constexpr explicit ListFwd(size_t count) noexcept;
-            constexpr ListFwd(const ListFwd& list) noexcept;
-            constexpr ListFwd(ListFwd&& list) noexcept;
-            constexpr ListFwd(std::initializer_list<T> values) noexcept;
+            constexpr forward_list(void) noexcept;
+            constexpr forward_list(size_t count, const T& value) noexcept;
+            constexpr explicit forward_list(size_t count) noexcept;
+            constexpr forward_list(const forward_list& list) noexcept;
+            constexpr forward_list(forward_list&& list) noexcept;
+            constexpr forward_list(std::initializer_list<T> values) noexcept;
 #if _HAS_CXX23 && defined(__cpp_lib_concepts)
             template<typename R>
-            constexpr ListFwd(std::from_range_t, const R& range) noexcept;
+            constexpr forward_list(std::from_range_t, const R& range) noexcept;
             template<typename R>
-            constexpr ListFwd(std::from_range_t, R&& range) noexcept;
+            constexpr forward_list(std::from_range_t, R&& range) noexcept;
 #endif
 
             constexpr void assign(size_t count, const T& value) noexcept;
@@ -48,14 +48,14 @@ namespace sss
             [[nodiscard]] constexpr std::optional<std::reference_wrapper<const T>> back(void) const noexcept;
             [[nodiscard]] constexpr std::optional<std::reference_wrapper<T>> back(void) noexcept;
             
-            // Iterators -----------------------------------------------------------------------------------------------
+            // const_iteratorators -----------------------------------------------------------------------------------------------
 
-            [[nodiscard]] constexpr Iter cbegin(void) const noexcept;
-            [[nodiscard]] constexpr Iter cend(void) const noexcept;
-            [[nodiscard]] constexpr IterMut begin(void) noexcept;
-            [[nodiscard]] constexpr IterMut end(void) noexcept;
-            [[nodiscard]] constexpr Iter begin(void) const noexcept;
-            [[nodiscard]] constexpr Iter end(void) const noexcept;
+            [[nodiscard]] constexpr const_iterator cbegin(void) const noexcept;
+            [[nodiscard]] constexpr const_iterator cend(void) const noexcept;
+            [[nodiscard]] constexpr iterator begin(void) noexcept;
+            [[nodiscard]] constexpr iterator end(void) noexcept;
+            [[nodiscard]] constexpr const_iterator begin(void) const noexcept;
+            [[nodiscard]] constexpr const_iterator end(void) const noexcept;
 
             // Capacity ------------------------------------------------------------------------------------------------
 
@@ -69,19 +69,19 @@ namespace sss
             
             constexpr std::optional<T> insert(size_t position, const T& value) noexcept;
             constexpr std::optional<T> insert(size_t position, T&& value) noexcept;
-            constexpr std::optional<ListFwd> insert(size_t position, ListFwd&& list) noexcept;
-            constexpr std::optional<ListFwd> insert(size_t position, const ListFwd& list) noexcept;
-            constexpr std::optional<ListFwd> insert(size_t position, size_t count, const T& value) noexcept;
-            constexpr std::optional<ListFwd> insert(size_t position, std::initializer_list<T> list) noexcept;
+            constexpr std::optional<forward_list> insert(size_t position, forward_list&& list) noexcept;
+            constexpr std::optional<forward_list> insert(size_t position, const forward_list& list) noexcept;
+            constexpr std::optional<forward_list> insert(size_t position, size_t count, const T& value) noexcept;
+            constexpr std::optional<forward_list> insert(size_t position, std::initializer_list<T> list) noexcept;
             template<typename R>
-            constexpr std::optional<ListFwd> insert_range(size_t position, const R& range) noexcept;
+            constexpr std::optional<forward_list> insert_range(size_t position, const R& range) noexcept;
             template<typename R>
-            constexpr std::optional<ListFwd> insert_range(size_t position, R&& range) noexcept;
+            constexpr std::optional<forward_list> insert_range(size_t position, R&& range) noexcept;
             template<typename... Args>
             constexpr std::optional<T> emplace(size_t position, Args&&... args) noexcept;
 
             constexpr std::optional<T> take(size_t position) noexcept;
-            constexpr std::optional<ListFwd> take(size_t first, size_t last) noexcept;
+            constexpr std::optional<forward_list> take(size_t first, size_t last) noexcept;
             constexpr size_t erase(size_t position) noexcept;
             constexpr size_t erase(size_t first, size_t last) noexcept;
 
@@ -89,8 +89,8 @@ namespace sss
             constexpr void push_back(T&& value) noexcept;
             template<typename... Args>
             constexpr void emplace_back(Args&&... args) noexcept;
-            constexpr void append(const ListFwd& value) noexcept;
-            constexpr void append(ListFwd&& value) noexcept;
+            constexpr void append(const forward_list& value) noexcept;
+            constexpr void append(forward_list&& value) noexcept;
             template<typename R>
             constexpr void append_range(const R& range) noexcept;
             template<typename R>
@@ -100,8 +100,8 @@ namespace sss
             constexpr void push_front(T&& value) noexcept;
             template<typename... Args>
             constexpr void emplace_front(Args&&... args) noexcept;
-            constexpr void prepend(const ListFwd& value) noexcept;
-            constexpr void prepend(ListFwd&& value) noexcept;
+            constexpr void prepend(const forward_list& value) noexcept;
+            constexpr void prepend(forward_list&& value) noexcept;
             template<typename R>
             constexpr void prepend_range(const R& range) noexcept;
             template<typename R>
@@ -113,28 +113,28 @@ namespace sss
             constexpr void resize(size_t size) noexcept;
             constexpr void resize(size_t size, const T& value) noexcept;
 
-            constexpr void swap(ListFwd& list) noexcept;
+            constexpr void swap(forward_list& list) noexcept;
 
             // Operations ----------------------------------------------------------------------------------------------
 
-            constexpr void merge(const ListFwd& list) noexcept;
-            constexpr void merge(ListFwd&& list) noexcept;
+            constexpr void merge(const forward_list& list) noexcept;
+            constexpr void merge(forward_list&& list) noexcept;
             template<typename F>
-            constexpr void merge(const ListFwd& list, const F& cmp) noexcept;
+            constexpr void merge(const forward_list& list, const F& cmp) noexcept;
             template<typename F>
-            constexpr void merge(ListFwd&& list, const F& cmp) noexcept;
+            constexpr void merge(forward_list&& list, const F& cmp) noexcept;
             template<typename F>
-            constexpr void merge(const ListFwd& list, F&& cmp) noexcept;
+            constexpr void merge(const forward_list& list, F&& cmp) noexcept;
             template<typename F>
-            constexpr void merge(ListFwd&& list, F&& cmp) noexcept;
+            constexpr void merge(forward_list&& list, F&& cmp) noexcept;
 
-            constexpr void splice(size_t position, ListFwd& list) noexcept;
-            constexpr std::optional<ListFwd> splice(size_t position, ListFwd&& list) noexcept;
-            constexpr void splice(size_t position, ListFwd& list, size_t from_position) noexcept;
-            constexpr std::optional<ListFwd> splice(size_t position, ListFwd&& list, size_t from_position) noexcept;
-            constexpr void splice(size_t position, ListFwd& list, size_t from_first, size_t from_last) noexcept;
-            constexpr std::optional<ListFwd>
-                splice(size_t position, ListFwd&& list, size_t from_first, size_t from_last) noexcept;
+            constexpr void splice(size_t position, forward_list& list) noexcept;
+            constexpr std::optional<forward_list> splice(size_t position, forward_list&& list) noexcept;
+            constexpr void splice(size_t position, forward_list& list, size_t from_position) noexcept;
+            constexpr std::optional<forward_list> splice(size_t position, forward_list&& list, size_t from_position) noexcept;
+            constexpr void splice(size_t position, forward_list& list, size_t from_first, size_t from_last) noexcept;
+            constexpr std::optional<forward_list>
+                splice(size_t position, forward_list&& list, size_t from_first, size_t from_last) noexcept;
             
             constexpr size_t remove(const T& value) noexcept;
             template<typename F>
@@ -158,21 +158,21 @@ namespace sss
 
             // Operators -----------------------------------------------------------------------------------------------
 
-            constexpr ListFwd& operator=(const ListFwd& list) noexcept;
-            constexpr ListFwd& operator=(ListFwd&& list) noexcept;
-            constexpr ListFwd& operator=(std::initializer_list<T> values) noexcept;
+            constexpr forward_list& operator=(const forward_list& list) noexcept;
+            constexpr forward_list& operator=(forward_list&& list) noexcept;
+            constexpr forward_list& operator=(std::initializer_list<T> values) noexcept;
 
         private:
-            constexpr std::optional<std::reference_wrapper<Link>> get_first_link(void) noexcept;
-            constexpr std::optional<std::reference_wrapper<const Link>> get_first_link(void) const noexcept;
+            constexpr std::optional<std::reference_wrapper<link>> get_first_link(void) noexcept;
+            constexpr std::optional<std::reference_wrapper<const link>> get_first_link(void) const noexcept;
             
-            constexpr std::optional<std::reference_wrapper<Link>> get_last_link(void) noexcept;
-            constexpr std::optional<std::reference_wrapper<const Link>> get_last_link(void) const noexcept;
+            constexpr std::optional<std::reference_wrapper<link>> get_last_link(void) noexcept;
+            constexpr std::optional<std::reference_wrapper<const link>> get_last_link(void) const noexcept;
     };
 }
 
 #include "forward_list/link.hpp"
-#include "forward_list/iter.hpp"
-#include "forward_list/iter_mut.hpp"
+#include "forward_list/const_iterator.hpp"
+#include "forward_list/iterator.hpp"
 
 #include "forward_list.cpp"

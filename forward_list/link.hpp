@@ -5,57 +5,57 @@
 namespace sss
 {
     template<typename T>
-    class ListFwd<T>::Link
+    class forward_list<T>::link
     {
         public:
             T value;
-            std::optional<std::unique_ptr<Link>> next {std::nullopt};
+            std::optional<std::unique_ptr<link>> next {std::nullopt};
 
         public:
-            constexpr Link(void) noexcept;
-            constexpr explicit Link(const Link& link) noexcept;
-            constexpr Link(Link&& link) noexcept;
-            constexpr Link(T&& value) noexcept;
+            constexpr link(void) noexcept;
+            constexpr explicit link(const link& link) noexcept;
+            constexpr link(link&& link) noexcept;
+            constexpr link(T&& value) noexcept;
 
             template<typename... Args>
-            static constexpr Link make(Args&&... args);
+            static constexpr link make(Args&&... args);
 
-            constexpr Iter cbegin(void) const noexcept;
-            constexpr Iter cend(void) const noexcept;
-            constexpr IterMut begin(void) noexcept;
-            constexpr IterMut end(void) noexcept;
-            constexpr Iter begin(void) const noexcept;
-            constexpr Iter end(void) const noexcept;
+            constexpr const_iterator cbegin(void) const noexcept;
+            constexpr const_iterator cend(void) const noexcept;
+            constexpr iterator begin(void) noexcept;
+            constexpr iterator end(void) noexcept;
+            constexpr const_iterator begin(void) const noexcept;
+            constexpr const_iterator end(void) const noexcept;
 
-            constexpr std::optional<std::reference_wrapper<const Link>> next_link(void) const noexcept;
-            constexpr std::optional<std::reference_wrapper<Link>> next_link(void) noexcept;
+            constexpr std::optional<std::reference_wrapper<const link>> next_link(void) const noexcept;
+            constexpr std::optional<std::reference_wrapper<link>> next_link(void) noexcept;
 
-            constexpr std::pair<std::optional<std::reference_wrapper<const Link>>, const Link&>
-                last_two_links(std::optional<std::reference_wrapper<const Link>> prev = {}) const noexcept;
-            constexpr std::pair<std::optional<std::reference_wrapper<Link>>, Link&>
-                last_two_links(std::optional<std::reference_wrapper<Link>> prev = {}) noexcept;
+            constexpr std::pair<std::optional<std::reference_wrapper<const link>>, const link&>
+                last_two_links(std::optional<std::reference_wrapper<const link>> prev = {}) const noexcept;
+            constexpr std::pair<std::optional<std::reference_wrapper<link>>, link&>
+                last_two_links(std::optional<std::reference_wrapper<link>> prev = {}) noexcept;
 
-            constexpr const Link& last_link(void) const noexcept;
-            constexpr Link& last_link(void) noexcept;
+            constexpr const link& last_link(void) const noexcept;
+            constexpr link& last_link(void) noexcept;
 
-            constexpr Link& append(ListFwd<T>&& next) noexcept;
-            constexpr Link& append(Link&& next) noexcept;
-            constexpr Link& prepend(ListFwd<T>&& prev) noexcept;
-            constexpr Link& prepend(Link&& prev) noexcept;
-            constexpr std::pair<Link, std::optional<Link>>
+            constexpr link& append(forward_list<T>&& next) noexcept;
+            constexpr link& append(link&& next) noexcept;
+            constexpr link& prepend(forward_list<T>&& prev) noexcept;
+            constexpr link& prepend(link&& prev) noexcept;
+            constexpr std::pair<link, std::optional<link>>
                 pop(
-                    std::optional<std::reference_wrapper<Link>> prev,
-                    std::optional<std::reference_wrapper<Link>> direct_prev,
-                    Link& first
+                    std::optional<std::reference_wrapper<link>> prev,
+                    std::optional<std::reference_wrapper<link>> direct_prev,
+                    link& first
                 ) noexcept;
             
-            constexpr ListFwd split_in_half(void) noexcept;
+            constexpr forward_list split_in_half(void) noexcept;
             template<typename F>
-            constexpr void merge(Link&& link, F&& cmp) noexcept;
+            constexpr void merge(link&& link, F&& cmp) noexcept;
             template<typename F>
-            constexpr void merge(Link&& link, const F& cmp) noexcept;
+            constexpr void merge(link&& link, const F& cmp) noexcept;
 
-            constexpr void operator=(Link&& link) noexcept;
+            constexpr void operator=(link&& link) noexcept;
     };
 }
 
