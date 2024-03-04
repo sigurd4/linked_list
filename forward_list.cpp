@@ -856,6 +856,10 @@ namespace sss
     template<typename T>
     constexpr void forward_list<T>::splice(size_t position, forward_list& list, size_t from_first, size_t from_last) noexcept
     {
+        if(position > this->size())
+        {
+            return;
+        }
         std::optional<forward_list> splice = list.take(from_first, from_last);
         if(splice.has_value())
         {
@@ -866,6 +870,10 @@ namespace sss
     constexpr std::optional<forward_list<T>>
         forward_list<T>::splice(size_t position, forward_list&& list, size_t from_first, size_t from_last) noexcept
     {
+        if(position > this->size())
+        {
+            return {std::move(list)};
+        }
         std::optional<forward_list> splice = list.take(from_first, from_last);
         if(splice.has_value())
         {

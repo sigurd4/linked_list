@@ -883,6 +883,10 @@ namespace sss
     template<typename T>
     constexpr void list<T>::splice(size_t position, list& list, size_t from_first, size_t from_last) noexcept
     {
+        if(position > this->size())
+        {
+            return;
+        }
         std::optional<sss::list<T>> splice = list.take(from_first, from_last);
         if(splice.has_value())
         {
@@ -893,6 +897,10 @@ namespace sss
     constexpr std::optional<list<T>>
         list<T>::splice(size_t position, list&& list, size_t from_first, size_t from_last) noexcept
     {
+        if(position > this->size())
+        {
+            return {std::move(list)};
+        }
         std::optional<sss::list<T>> splice = list.take(from_first, from_last);
         if(splice.has_value())
         {
