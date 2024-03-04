@@ -852,13 +852,12 @@ namespace sss
             if(current.has_value())
             {
                 current.value().get().prepend(std::move(list));
-                return {};
             }
             else
             {
                 this->first = std::move(list.first);
-                return {};
             }
+            return {};
         }
         iterator iter = this->begin();
         iter += position - 1;
@@ -883,28 +882,72 @@ namespace sss
     template<typename T>
     constexpr void list<T>::splice(size_t position, list& list, size_t from_first, size_t from_last) noexcept
     {
-        if(position > this->size())
+        if(position == 0)
         {
+            std::optional<sss::list<T>> splice = list.take(from_first, from_last);
+            if(!splice.has_value())
+            {
+                return;
+            }
+            std::optional<std::reference_wrapper<link>> current {this->get_first_link()};
+            if(current.has_value())
+            {
+                current.value().get().prepend(std::move(splice.value()));
+            }
+            else
+            {
+                this->first = std::move(splice.value().first);
+            }
             return;
         }
-        std::optional<sss::list<T>> splice = list.take(from_first, from_last);
-        if(splice.has_value())
+        iterator iter = this->begin();
+        iter += position - 1;
+        std::optional<std::reference_wrapper<link>> prev {iter.get_link()};
+        if(prev.has_value())
         {
-            this->splice(position, std::move(splice.value()));
+            std::optional<sss::list<T>> splice = list.take(from_first, from_last);
+            if(!splice.has_value())
+            {
+                return;
+            }
+            prev.value().get().append(std::move(splice.value()));
+            return;
         }
     }
     template<typename T>
     constexpr std::optional<list<T>>
         list<T>::splice(size_t position, list&& list, size_t from_first, size_t from_last) noexcept
     {
-        if(position > this->size())
+        if(position == 0)
         {
-            return {std::move(list)};
+            std::optional<sss::list<T>> splice = list.take(from_first, from_last);
+            if(!splice.has_value())
+            {
+                return {std::move(list)};
+            }
+            std::optional<std::reference_wrapper<link>> current {this->get_first_link()};
+            if(current.has_value())
+            {
+                current.value().get().prepend(std::move(splice.value()));
+            }
+            else
+            {
+                this->first = std::move(splice.value().first);
+            }
+            return {};
         }
-        std::optional<sss::list<T>> splice = list.take(from_first, from_last);
-        if(splice.has_value())
+        iterator iter = this->begin();
+        iter += position - 1;
+        std::optional<std::reference_wrapper<link>> prev {iter.get_link()};
+        if(prev.has_value())
         {
-            return this->splice(position, std::move(splice.value()));
+            std::optional<sss::list<T>> splice = list.take(from_first, from_last);
+            if(!splice.has_value())
+            {
+                return {std::move(list)};
+            }
+            prev.value().get().append(std::move(splice.value()));
+            return {};
         }
         return {std::move(list)};
     }
