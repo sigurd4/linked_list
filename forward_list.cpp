@@ -1149,6 +1149,63 @@ namespace sss
         this->merge(std::move(b), std::move(predicate));
     }
 
+    // Extra -----------------------------------------------------------------------------------------------------------
+
+    template<typename T>
+    template<typename U, typename F>
+    constexpr forward_list<U> forward_list<T>::transform(const F& map) noexcept
+    {
+        forward_list<U> o {};
+        auto last {o.get_first_link()};
+
+        while(true)
+        {
+            std::optional<T> pop {this->pop_front()};
+            if(!pop.has_value())
+            {
+                break;
+            }
+            auto value {map(std::move(pop.value()))};
+            if(!last.has_value())
+            {
+                o.first = std::move(value);
+                last = o.get_first_link();
+                continue;
+            }
+            last.value().get().append(std::move(value));
+            last = last.value().get().next_link();
+        }
+
+        return o;
+    }
+    template<typename T>
+    template<typename U, typename F>
+    constexpr forward_list<U> forward_list<T>::transform(F&& map) noexcept
+    {
+        forward_list<U> o {};
+        auto last {o.get_first_link()};
+
+        while(true)
+        {
+            std::optional<T> pop {this->pop_front()};
+            if(!pop.has_value())
+            {
+                break;
+            }
+            auto value {map(std::move(pop.value()))};
+            if(!last.has_value())
+            {
+                o.first = std::move(value);
+                last = o.get_first_link();
+                continue;
+            }
+            last.value().get().append(std::move(value));
+            last = last.value().get().next_link();
+        }
+
+        return o;
+    }
+
     // Operators -------------------------------------------------------------------------------------------------------
 
     template<typename T>

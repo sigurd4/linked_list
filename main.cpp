@@ -408,6 +408,13 @@ int main()
     test_capacity<sss::forward_list<int_nocopy>>();
     test_modifiers<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
     test_operations<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
+
+    sss::list<int> list1 {1, 2, 3};
+
+    for(auto x : list1.rbegin())
+    {
+        std::cout << x << std::endl;
+    }
 }
 
 template<typename L>

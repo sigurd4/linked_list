@@ -156,6 +156,20 @@ namespace sss
             template<typename F>
             constexpr void sort(F&& predicate) noexcept;
 
+            // Extra ---------------------------------------------------------------------------------------------------
+            
+            template<typename U, typename F>
+            constexpr forward_list<U> transform(const F& map) noexcept;
+            template<typename U, typename F>
+            constexpr forward_list<U> transform(F&& map) noexcept;
+
+            template<typename U>
+            template<typename V, typename F>
+            friend constexpr forward_list<V> forward_list<U>::transform(const F& map) noexcept;
+            template<typename U>
+            template<typename V, typename F>
+            friend constexpr forward_list<V> forward_list<U>::transform(F&& map) noexcept;
+
             // Operators -----------------------------------------------------------------------------------------------
 
             constexpr forward_list& operator=(const forward_list& list) noexcept;
