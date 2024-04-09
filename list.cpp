@@ -1,5 +1,8 @@
 #include "list.hpp"
 
+#include <thread>
+#include <future>
+
 namespace sss
 {
     template<typename T>
@@ -72,13 +75,13 @@ namespace sss
 #endif
     
     template<typename T>
-    constexpr void list<T>::assign(size_t count, const T& value) noexcept
+    constexpr list<T>& list<T>::assign(size_t count, const T& value) noexcept
     {
-        this->clear();
-        this->resize(count, value);
+        return this->clear()
+            .resize(count, value);
     }
     template<typename T>
-    constexpr void list<T>::assign(std::initializer_list<T> values) noexcept
+    constexpr list<T>& list<T>::assign(std::initializer_list<T> values) noexcept
     {
         this->clear();
 
@@ -99,9 +102,11 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
     template<typename T>
-    constexpr void list<T>::assign(std::initializer_list<T> values) noexcept requires std::copyable<T>
+    constexpr list<T>& list<T>::assign(std::initializer_list<T> values) noexcept requires std::copyable<T>
     {
         this->clear();
 
@@ -118,10 +123,12 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void list<T>::assign_range(const R& values) noexcept
+    constexpr list<T>& list<T>::assign_range(const R& values) noexcept
     {
         this->clear();
 
@@ -139,10 +146,12 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void list<T>::assign_range(R&& values) noexcept
+    constexpr list<T>& list<T>::assign_range(R&& values) noexcept
     {
         this->clear();
 
@@ -160,6 +169,8 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
 
     // Element access --------------------------------------------------------------------------------------------------
@@ -295,9 +306,10 @@ namespace sss
     // Modifiers -------------------------------------------------------------------------------------------------------
 
     template<typename T>
-    constexpr void list<T>::clear(void) noexcept
+    constexpr list<T>& list<T>::clear(void) noexcept
     {
         this->first = {};
+        return *this;
     }
 
     template<typename T>
@@ -524,51 +536,53 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void list<T>::push_back(const T& value) noexcept
+    constexpr list<T>& list<T>::push_back(const T& value) noexcept
     {
         return this->emplace_back(value);
     }
     template<typename T>
-    constexpr void list<T>::push_back(T&& value) noexcept
+    constexpr list<T>& list<T>::push_back(T&& value) noexcept
     {
         return this->emplace_back(std::move(value));
     }
     template<typename T>
     template<typename... Args> requires std::constructible_from<T, Args...>
-    constexpr void list<T>::emplace_back(Args&&... args) noexcept
+    constexpr list<T>& list<T>::emplace_back(Args&&... args) noexcept
     {
         if(!this->first.has_value())
         {
             std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
-            return;
+            return *this;
         }
         link& last = this->first.value().last_link();
         last.append(link::make(std::move(args)...));
+        return *this;
     }
     template<typename T>
-    constexpr void list<T>::append(const list& list) noexcept
+    constexpr list<T>& list<T>::append(const list& list) noexcept
     {
-        this->append(list(list));
+        return this->append(list(list));
     }
     template<typename T>
-    constexpr void list<T>::append(list&& list) noexcept
+    constexpr list<T>& list<T>::append(list&& list) noexcept
     {
         if(!list.first.has_value())
         {
-            return;
+            return *this;
         }
         if(!this->first.has_value())
         {
             this->first = std::move(list.first);
-            return;
+            return *this;
         }
         link& last = this->first.value().last_link();
         last.append(std::move(list.first.value()));
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void list<T>::append_range(R&& range) noexcept
+    constexpr list<T>& list<T>::append_range(R&& range) noexcept
     {
         list list {};
         list.assign_range(std::move(range));
@@ -576,7 +590,7 @@ namespace sss
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void list<T>::append_range(const R& range) noexcept
+    constexpr list<T>& list<T>::append_range(const R& range) noexcept
     {
         list list {};
         list.assign_range(range);
@@ -584,49 +598,51 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void list<T>::push_front(const T& value) noexcept
+    constexpr list<T>& list<T>::push_front(const T& value) noexcept
     {
         return this->emplace_front(value);
     }
     template<typename T>
-    constexpr void list<T>::push_front(T&& value) noexcept
+    constexpr list<T>& list<T>::push_front(T&& value) noexcept
     {
         return this->emplace_front(std::move(value));
     }
     template<typename T>
     template<typename... Args> requires std::constructible_from<T, Args...>
-    constexpr void list<T>::emplace_front(Args&&... args) noexcept
+    constexpr list<T>& list<T>::emplace_front(Args&&... args) noexcept
     {
         if(!this->first.has_value())
         {
             std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
-            return;
+            return *this;
         }
         this->first.value().prepend(link::make(std::move(args)...));
+        return *this;
     }
     template<typename T>
-    constexpr void list<T>::prepend(const list& list) noexcept
+    constexpr list<T>& list<T>::prepend(const list& list) noexcept
     {
-        this->prepend(list(list));
+        return this->prepend(list(list));
     }
     template<typename T>
-    constexpr void list<T>::prepend(list&& list) noexcept
+    constexpr list<T>& list<T>::prepend(list&& list) noexcept
     {
         if(!list.first.has_value())
         {
-            return;
+            return *this;
         }
         if(!this->first.has_value())
         {
             this->first = std::move(list.first);
-            return;
+            return *this;
         }
         this->first.value().prepend(std::move(list.first.value()));
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void list<T>::prepend_range(R&& range) noexcept
+    constexpr list<T>& list<T>::prepend_range(R&& range) noexcept
     {
         list list {};
         list.assign_range(std::move(range));
@@ -634,7 +650,7 @@ namespace sss
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void list<T>::prepend_range(const R& range) noexcept
+    constexpr list<T>& list<T>::prepend_range(const R& range) noexcept
     {
         list list {};
         list.assign_range(range);
@@ -676,7 +692,7 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void list<T>::resize(size_t size) noexcept
+    constexpr list<T>& list<T>::resize(size_t size) noexcept
     {
         std::optional<std::reference_wrapper<link>> last = this->get_first_link();
         size_t i = 0;
@@ -706,9 +722,10 @@ namespace sss
             last.value().get().append(link::make());
             last = last.value().get().next_link();
         }
+        return *this;
     }
     template<typename T>
-    constexpr void list<T>::resize(size_t size, const T& value) noexcept
+    constexpr list<T>& list<T>::resize(size_t size, const T& value) noexcept
     {
         std::optional<std::reference_wrapper<link>> last = this->get_first_link();
         size_t i = 0;
@@ -738,23 +755,25 @@ namespace sss
             last.value().get().append(link::make(value));
             last = last.value().get().next_link();
         }
+        return *this;
     }
 
     template<typename T>
-    constexpr void list<T>::swap(list& list) noexcept
+    constexpr list<T>& list<T>::swap(list& list) noexcept
     {
         this->first.swap(list.first);
+        return *this;
     }
 
     // Operations ------------------------------------------------------------------------------------------------------
 
     template<typename T>
-    constexpr void list<T>::merge(const list& list) noexcept
+    constexpr list<T>& list<T>::merge(const list& list) noexcept
     {
         return this->merge(list(list));
     }
     template<typename T>
-    constexpr void list<T>::merge(list&& list) noexcept
+    constexpr list<T>& list<T>::merge(list&& list) noexcept
     {
         return this->merge(std::move(list), [](const T& a, const T& b) {
             return a < b;
@@ -762,22 +781,22 @@ namespace sss
     }
     template<typename T>
     template<typename F>
-    constexpr void list<T>::merge(const list& list, F&& cmp) noexcept
+    constexpr list<T>& list<T>::merge(const list& list, F&& cmp) noexcept
     {
         return this->merge(list(list), std::move(cmp));
     }
     template<typename T>
     template<typename F>
-    constexpr void list<T>::merge(list&& list, F&& cmp) noexcept
+    constexpr list<T>& list<T>::merge(list&& list, F&& cmp) noexcept
     {
         if(list.empty())
         {
-            return;
+            return *this;
         }
         if(this->empty())
         {
             std::swap(*this, list);
-            return;
+            return *this;
         }
 
         if(cmp(list.front().value(), this->front().value()))
@@ -795,25 +814,26 @@ namespace sss
             b.value()->prev = this->first.value();
             this->first.value().next.swap(b);
         }
+        return *this;
     }
     template<typename T>
     template<typename F>
-    constexpr void list<T>::merge(const list& list, const F& cmp) noexcept
+    constexpr list<T>& list<T>::merge(const list& list, const F& cmp) noexcept
     {
         return this->merge(list(list), cmp);
     }
     template<typename T>
     template<typename F>
-    constexpr void list<T>::merge(list&& list, const F& cmp) noexcept
+    constexpr list<T>& list<T>::merge(list&& list, const F& cmp) noexcept
     {
         if(list.empty())
         {
-            return;
+            return *this;
         }
         if(this->empty())
         {
             std::swap(*this, list);
-            return;
+            return *this;
         }
 
         if(cmp(list.front().value(), this->front().value()))
@@ -831,10 +851,11 @@ namespace sss
             b.value()->prev = this->first.value();
             this->first.value().next.swap(b);
         }
+        return *this;
     }
     
     template<typename T>
-    constexpr void list<T>::splice(size_t position, list& list) noexcept
+    constexpr list<T>& list<T>::splice(size_t position, list& list) noexcept
     {
         if(position == 0)
         {
@@ -843,13 +864,13 @@ namespace sss
             {
                 current.value().get().prepend(std::move(list));
                 list.clear();
-                return;
+                return *this;
             }
             else
             {
                 this->first = std::move(list.first);
                 list.clear();
-                return;
+                return *this;
             }
         }
         iterator iter = this->begin();
@@ -859,8 +880,8 @@ namespace sss
         {
             prev.value().get().append(std::move(list));
             list.clear();
-            return;
         }
+        return *this;
     }
     template<typename T>
     constexpr std::optional<list<T>> list<T>::splice(size_t position, list&& list) noexcept
@@ -889,9 +910,9 @@ namespace sss
         return {std::move(list)};
     }
     template<typename T>
-    constexpr void list<T>::splice(size_t position, list& list, size_t from_position) noexcept
+    constexpr list<T>& list<T>::splice(size_t position, list& list, size_t from_position) noexcept
     {
-        this->splice(position, list, from_position, from_position + 1);
+        return this->splice(position, list, from_position, from_position + 1);
     }
     template<typename T>
     constexpr std::optional<list<T>> list<T>::splice(size_t position, list&& list, size_t from_position) noexcept
@@ -899,14 +920,14 @@ namespace sss
         return this->splice(position, std::move(list), from_position, from_position + 1);
     }
     template<typename T>
-    constexpr void list<T>::splice(size_t position, list& list, size_t from_first, size_t from_last) noexcept
+    constexpr list<T>& list<T>::splice(size_t position, list& list, size_t from_first, size_t from_last) noexcept
     {
         if(position == 0)
         {
             std::optional<sss::list<T>> splice = list.take(from_first, from_last);
             if(!splice.has_value())
             {
-                return;
+                return *this;
             }
             std::optional<std::reference_wrapper<link>> current {this->get_first_link()};
             if(current.has_value())
@@ -917,7 +938,7 @@ namespace sss
             {
                 this->first = std::move(splice.value().first);
             }
-            return;
+            return *this;
         }
         iterator iter = this->begin();
         iter += position - 1;
@@ -927,11 +948,12 @@ namespace sss
             std::optional<sss::list<T>> splice = list.take(from_first, from_last);
             if(!splice.has_value())
             {
-                return;
+                return *this;
             }
             prev.value().get().append(std::move(splice.value()));
-            return;
+            return *this;
         }
+        return *this;
     }
     template<typename T>
     constexpr std::optional<list<T>>
@@ -1050,7 +1072,7 @@ namespace sss
     }
     
     template<typename T>
-    constexpr void list<T>::reverse(void) noexcept
+    constexpr list<T>& list<T>::reverse(void) noexcept
     {
         list r {};
         std::swap(r, *this);
@@ -1063,6 +1085,7 @@ namespace sss
             }
             this->push_front(std::move(pop.value()));
         }
+        return *this;
     }
 
     template<typename T>
@@ -1184,60 +1207,98 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void list<T>::sort(void) noexcept
+    constexpr list<T>& list<T>::sort(void) noexcept
     {
-        return this->sort([](const T& a, const T& b) {
-            return a < b;
-        });
+        return this->sort(std::execution::seq);
     }
     template<typename T>
-    template<typename F>
-    constexpr void list<T>::sort(const F& predicate) noexcept
+    template<typename F> requires sss::comparison<F, T>
+    constexpr list<T>& list<T>::sort(const F& predicate) noexcept
+    {
+        return this->sort(std::execution::seq, predicate);
+    }
+    template<typename T>
+    template<typename F> requires sss::comparison<F, T>
+    constexpr list<T>& list<T>::sort(F&& predicate) noexcept
+    {
+        return this->sort(std::execution::seq, std::move(predicate));
+    }
+    template<typename T>
+    template<typename P> requires sss::execution_policy<P>
+    constexpr list<T>& list<T>::sort(P policy) noexcept
+    {
+        return this->sort(policy, std::less<T> {});
+    }
+    template<typename T>
+    template<typename P, typename F> requires sss::execution_policy<P> && sss::comparison<F, T>
+    constexpr list<T>& list<T>::sort(P policy, const F& predicate) noexcept
     {
         // Do nothing if length is 0 or 1
         if(!this->first.has_value() || !this->first.value().next_link().has_value())
         {
-            return;
+            return *this;
         }
 
         // Split in halves
         list b {this->first.value().split_in_half()};
 
         // Sort each half
-        this->sort(predicate);
-        b.sort(predicate);
+        if constexpr (sss::par_execution_policy<P>)
+        {
+            std::thread t1 {[&] () {
+                b.sort(policy, predicate);
+            }};
+            this->sort(policy, predicate);
+            t1.join();
+        }
+        else
+        {
+            this->sort(policy, predicate);
+            b.sort(policy, predicate);
+        }
 
         // Merge halves
-        this->merge(std::move(b), predicate);
+        return this->merge(std::move(b), predicate);
     }
     template<typename T>
-    template<typename F>
-    constexpr void list<T>::sort(F&& predicate) noexcept
+    template<typename P, typename F> requires sss::execution_policy<P> && sss::comparison<F, T>
+    constexpr list<T>& list<T>::sort(P policy, F&& predicate) noexcept
     {
         // Do nothing if length is 0 or 1
         if(!this->first.has_value() || !this->first.value().next_link().has_value())
         {
-            return;
+            return *this;
         }
 
         // Split in halves
         list b {this->first.value().split_in_half()};
 
         // Sort each half
-        this->sort(predicate);
-        b.sort(predicate);
+        if constexpr (sss::par_execution_policy<P>)
+        {
+            std::thread t1 {[&] () {
+                b.sort(policy, predicate);
+            }};
+            this->sort(policy, predicate);
+            t1.join();
+        }
+        else
+        {
+            this->sort(policy, predicate);
+            b.sort(policy, predicate);
+        }
 
         // Merge halves
-        this->merge(std::move(b), std::move(predicate));
+        return this->merge(std::move(b), predicate);
     }
 
     // Extra -----------------------------------------------------------------------------------------------------------
     
     template<typename T>
-    template<typename U, typename F>
-    constexpr list<U> list<T>::transform(const F& map) noexcept
+    template<typename F>
+    constexpr list<std::invoke_result_t<F, T&&>> list<T>::transform(const F& map) noexcept
     {
-        list<U> o {};
+        list<std::invoke_result_t<F, T&&>> o {};
         auto last {o.get_first_link()};
 
         while(true)
@@ -1261,10 +1322,10 @@ namespace sss
         return o;
     }
     template<typename T>
-    template<typename U, typename F>
-    constexpr list<U> list<T>::transform(F&& map) noexcept
+    template<typename F>
+    constexpr list<std::invoke_result_t<F, T&&>> list<T>::transform(F&& map) noexcept
     {
-        list<U> o {};
+        list<std::invoke_result_t<F, T&&>> o {};
         auto last {o.get_first_link()};
 
         while(true)
@@ -1286,6 +1347,40 @@ namespace sss
         }
 
         return o;
+    }
+    template<typename T>
+    template<typename P, typename F> requires sss::execution_policy<P>
+    constexpr list<std::invoke_result_t<F, T&&>> list<T>::transform(P policy, const F& map) noexcept
+    {
+        if constexpr (!sss::par_execution_policy<P>)
+        {
+            return this->transform(map);
+        }
+
+        return this->transform([&] (T&& x) {
+            return std::async([&] () {
+                return map(std::move(x));
+            });
+        }).transform([](std::future<std::invoke_result_t<F, T&&>> y) {
+            return y.get();
+        });
+    }
+    template<typename T>
+    template<typename P, typename F> requires sss::execution_policy<P>
+    constexpr list<std::invoke_result_t<F, T&&>> list<T>::transform(P policy, F&& map) noexcept
+    {
+        if constexpr (!sss::par_execution_policy<P>)
+        {
+            return this->transform(map);
+        }
+
+        return this->transform([&] (T&& x) {
+            return std::async([&] (T&& x) {
+                return map(std::move(x));
+            }, std::move(x));
+        }).transform([](std::future<std::invoke_result_t<F, T&&>> y) {
+            return y.get();
+        });
     }
 
     // Operators -------------------------------------------------------------------------------------------------------

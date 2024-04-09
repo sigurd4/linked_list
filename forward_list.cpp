@@ -1,5 +1,7 @@
 #include "forward_list.hpp"
 
+#include <thread>
+
 namespace sss
 {
     template<typename T>
@@ -73,13 +75,13 @@ namespace sss
 #endif
 
     template<typename T>
-    constexpr void forward_list<T>::assign(size_t count, const T& value) noexcept
+    constexpr forward_list<T>& forward_list<T>::assign(size_t count, const T& value) noexcept
     {
-        this->clear();
-        this->resize(count, value);
+        return this->clear()
+            .resize(count, value);
     }
     template<typename T>
-    constexpr void forward_list<T>::assign(std::initializer_list<T> values) noexcept
+    constexpr forward_list<T>& forward_list<T>::assign(std::initializer_list<T> values) noexcept
     {
         this->clear();
 
@@ -100,9 +102,11 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
     template<typename T>
-    constexpr void forward_list<T>::assign(std::initializer_list<T> values) noexcept requires std::copyable<T>
+    constexpr forward_list<T>& forward_list<T>::assign(std::initializer_list<T> values) noexcept requires std::copyable<T>
     {
         this->clear();
 
@@ -119,10 +123,12 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void forward_list<T>::assign_range(const R& values) noexcept
+    constexpr forward_list<T>& forward_list<T>::assign_range(const R& values) noexcept
     {
         this->clear();
 
@@ -140,10 +146,12 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void forward_list<T>::assign_range(R&& values) noexcept
+    constexpr forward_list<T>& forward_list<T>::assign_range(R&& values) noexcept
     {
         this->clear();
 
@@ -161,6 +169,8 @@ namespace sss
                 last = {last.value().get().append(std::move(value))};
             }
         }
+
+        return *this;
     }
 
     // Element access --------------------------------------------------------------------------------------------------
@@ -265,9 +275,10 @@ namespace sss
     // Modifiers -------------------------------------------------------------------------------------------------------
 
     template<typename T>
-    constexpr void forward_list<T>::clear(void) noexcept
+    constexpr forward_list<T>& forward_list<T>::clear(void) noexcept
     {
         this->first = {};
+        return *this;
     }
     
     template<typename T>
@@ -498,51 +509,53 @@ namespace sss
     }
     
     template<typename T>
-    constexpr void forward_list<T>::push_back(const T& value) noexcept
+    constexpr forward_list<T>& forward_list<T>::push_back(const T& value) noexcept
     {
         return this->emplace_back(value);
     }
     template<typename T>
-    constexpr void forward_list<T>::push_back(T&& value) noexcept
+    constexpr forward_list<T>& forward_list<T>::push_back(T&& value) noexcept
     {
         return this->emplace_back(std::move(value));
     }
     template<typename T>
     template<typename... Args> requires std::constructible_from<T, Args...>
-    constexpr void forward_list<T>::emplace_back(Args&&... args) noexcept
+    constexpr forward_list<T>& forward_list<T>::emplace_back(Args&&... args) noexcept
     {
         if(!this->first.has_value())
         {
             std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
-            return;
+            return *this;
         }
         link& last = this->first.value().last_link();
         last.append(link::make(std::move(args)...));
+        return *this;
     }
     template<typename T>
-    constexpr void forward_list<T>::append(const forward_list& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::append(const forward_list& list) noexcept
     {
-        this->append(forward_list(list));
+        return this->append(forward_list(list));
     }
     template<typename T>
-    constexpr void forward_list<T>::append(forward_list&& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::append(forward_list&& list) noexcept
     {
         if(!list.first.has_value())
         {
-            return;
+            return *this;
         }
         if(!this->first.has_value())
         {
             this->first = std::move(list.first);
-            return;
+            return *this;
         }
         link& last = this->first.value().last_link();
         last.append(std::move(list.first.value()));
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void forward_list<T>::append_range(R&& range) noexcept
+    constexpr forward_list<T>& forward_list<T>::append_range(R&& range) noexcept
     {
         forward_list list {};
         list.assign_range(std::move(range));
@@ -550,7 +563,7 @@ namespace sss
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void forward_list<T>::append_range(const R& range) noexcept
+    constexpr forward_list<T>& forward_list<T>::append_range(const R& range) noexcept
     {
         forward_list list {};
         list.assign_range(range);
@@ -558,49 +571,51 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void forward_list<T>::push_front(const T& value) noexcept
+    constexpr forward_list<T>& forward_list<T>::push_front(const T& value) noexcept
     {
         return this->emplace_front(value);
     }
     template<typename T>
-    constexpr void forward_list<T>::push_front(T&& value) noexcept
+    constexpr forward_list<T>& forward_list<T>::push_front(T&& value) noexcept
     {
         return this->emplace_front(std::move(value));
     }
     template<typename T>
     template<typename... Args> requires std::constructible_from<T, Args...>
-    constexpr void forward_list<T>::emplace_front(Args&&... args) noexcept
+    constexpr forward_list<T>& forward_list<T>::emplace_front(Args&&... args) noexcept
     {
         if(!this->first.has_value())
         {
             std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
-            return;
+            return *this;
         }
         this->first.value().prepend(link::make(std::move(args)...));
+        return *this;
     }
     template<typename T>
-    constexpr void forward_list<T>::prepend(const forward_list& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::prepend(const forward_list& list) noexcept
     {
-        this->prepend(forward_list(list));
+        return this->prepend(forward_list(list));
     }
     template<typename T>
-    constexpr void forward_list<T>::prepend(forward_list&& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::prepend(forward_list&& list) noexcept
     {
         if(!list.first.has_value())
         {
-            return;
+            return *this;
         }
         if(!this->first.has_value())
         {
             this->first = std::move(list.first);
-            return;
+            return *this;
         }
         this->first.value().prepend(std::move(list.first.value()));
+        return *this;
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void forward_list<T>::prepend_range(R&& range) noexcept
+    constexpr forward_list<T>& forward_list<T>::prepend_range(R&& range) noexcept
     {
         forward_list list {};
         list.assign_range(std::move(range));
@@ -608,7 +623,7 @@ namespace sss
     }
     template<typename T>
     template<typename R> requires std::ranges::range<R>
-    constexpr void forward_list<T>::prepend_range(const R& range) noexcept
+    constexpr forward_list<T>& forward_list<T>::prepend_range(const R& range) noexcept
     {
         forward_list list {};
         list.assign_range(range);
@@ -649,7 +664,7 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void forward_list<T>::resize(size_t size) noexcept
+    constexpr forward_list<T>& forward_list<T>::resize(size_t size) noexcept
     {
         std::optional<std::reference_wrapper<link>> last = this->get_first_link();
         size_t i = 0;
@@ -679,9 +694,10 @@ namespace sss
             last.value().get().append(link::make());
             last = last.value().get().next_link();
         }
+        return *this;
     }
     template<typename T>
-    constexpr void forward_list<T>::resize(size_t size, const T& value) noexcept
+    constexpr forward_list<T>& forward_list<T>::resize(size_t size, const T& value) noexcept
     {
         std::optional<std::reference_wrapper<link>> last = this->get_first_link();
         size_t i = 0;
@@ -711,23 +727,25 @@ namespace sss
             last.value().get().append(link::make(value));
             last = last.value().get().next_link();
         }
+        return *this;
     }
 
     template<typename T>
-    constexpr void forward_list<T>::swap(forward_list& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::swap(forward_list& list) noexcept
     {
         this->first.swap(list.first);
+        return *this;
     }
 
     // Operations ------------------------------------------------------------------------------------------------------
 
     template<typename T>
-    constexpr void forward_list<T>::merge(const forward_list& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::merge(const forward_list& list) noexcept
     {
         return this->merge(forward_list(list));
     }
     template<typename T>
-    constexpr void forward_list<T>::merge(forward_list&& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::merge(forward_list&& list) noexcept
     {
         return this->merge(std::move(list), [](const T& a, const T& b) {
             return a < b;
@@ -735,22 +753,22 @@ namespace sss
     }
     template<typename T>
     template<typename F>
-    constexpr void forward_list<T>::merge(const forward_list& list, F&& cmp) noexcept
+    constexpr forward_list<T>& forward_list<T>::merge(const forward_list& list, F&& cmp) noexcept
     {
         return this->merge(forward_list(list), std::move(cmp));
     }
     template<typename T>
     template<typename F>
-    constexpr void forward_list<T>::merge(forward_list&& list, F&& cmp) noexcept
+    constexpr forward_list<T>& forward_list<T>::merge(forward_list&& list, F&& cmp) noexcept
     {
         if(list.empty())
         {
-            return;
+            return *this;
         }
         if(this->empty())
         {
             std::swap(*this, list);
-            return;
+            return *this;
         }
 
         if(cmp(list.front().value(), this->front().value()))
@@ -767,25 +785,26 @@ namespace sss
             std::optional<std::unique_ptr<link>> b {std::make_unique<link>(std::move(list.first.value()))};
             this->first.value().next.swap(b);
         }
+        return *this;
     }
     template<typename T>
     template<typename F>
-    constexpr void forward_list<T>::merge(const forward_list& list, const F& cmp) noexcept
+    constexpr forward_list<T>& forward_list<T>::merge(const forward_list& list, const F& cmp) noexcept
     {
         return this->merge(list(list), cmp);
     }
     template<typename T>
     template<typename F>
-    constexpr void forward_list<T>::merge(forward_list&& list, const F& cmp) noexcept
+    constexpr forward_list<T>& forward_list<T>::merge(forward_list&& list, const F& cmp) noexcept
     {
         if(list.empty())
         {
-            return;
+            return *this;
         }
         if(this->empty())
         {
             std::swap(*this, list);
-            return;
+            return *this;
         }
 
         if(cmp(list.front().value(), this->front().value()))
@@ -802,10 +821,11 @@ namespace sss
             std::optional<std::unique_ptr<link>> b {std::make_unique<link>(std::move(list.first.value()))};
             this->first.value().next.swap(b);
         }
+        return *this;
     }
 
     template<typename T>
-    constexpr void forward_list<T>::splice(size_t position, forward_list& list) noexcept
+    constexpr forward_list<T>& forward_list<T>::splice(size_t position, forward_list& list) noexcept
     {
         if(position == 0)
         {
@@ -814,13 +834,13 @@ namespace sss
             {
                 current.value().get().prepend(std::move(list));
                 list.clear();
-                return;
+                return *this;
             }
             else
             {
                 this->first = std::move(list.first);
                 list.clear();
-                return;
+                return *this;
             }
         }
         iterator iter = this->begin();
@@ -830,8 +850,8 @@ namespace sss
         {
             prev.value().get().append(std::move(list));
             list.clear();
-            return;
         }
+        return *this;
     }
     template<typename T>
     constexpr std::optional<forward_list<T>> forward_list<T>::splice(size_t position, forward_list&& list) noexcept
@@ -861,9 +881,9 @@ namespace sss
         return {std::move(list)};
     }
     template<typename T>
-    constexpr void forward_list<T>::splice(size_t position, forward_list& list, size_t from_position) noexcept
+    constexpr forward_list<T>& forward_list<T>::splice(size_t position, forward_list& list, size_t from_position) noexcept
     {
-        this->splice(position, list, from_position, from_position + 1);
+        return this->splice(position, list, from_position, from_position + 1);
     }
     template<typename T>
     constexpr std::optional<forward_list<T>> forward_list<T>::splice(size_t position, forward_list&& list, size_t from_position) noexcept
@@ -871,17 +891,18 @@ namespace sss
         return this->splice(position, std::move(list), from_position, from_position + 1);
     }
     template<typename T>
-    constexpr void forward_list<T>::splice(size_t position, forward_list& list, size_t from_first, size_t from_last) noexcept
+    constexpr forward_list<T>& forward_list<T>::splice(size_t position, forward_list& list, size_t from_first, size_t from_last) noexcept
     {
         if(position > this->size())
         {
-            return;
+            return *this;
         }
         std::optional<forward_list> splice = list.take(from_first, from_last);
         if(splice.has_value())
         {
             this->splice(position, std::move(splice.value()));
         }
+        return *this;
     }
     template<typename T>
     constexpr std::optional<forward_list<T>>
@@ -980,7 +1001,7 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void forward_list<T>::reverse(void) noexcept
+    constexpr forward_list<T>& forward_list<T>::reverse(void) noexcept
     {
         forward_list r {};
         std::swap(r, *this);
@@ -993,10 +1014,8 @@ namespace sss
             }
             this->push_front(std::move(pop.value()));
         }
+        return *this;
     }
-
-
-
 
     template<typename T>
     constexpr size_t forward_list<T>::unique(void) noexcept
@@ -1119,60 +1138,98 @@ namespace sss
     }
 
     template<typename T>
-    constexpr void forward_list<T>::sort(void) noexcept
+    constexpr forward_list<T>& forward_list<T>::sort(void) noexcept
     {
-        return this->sort([](const T& a, const T& b) {
-            return a < b;
-        });
+        return this->sort(std::execution::seq);
     }
     template<typename T>
-    template<typename F>
-    constexpr void forward_list<T>::sort(const F& predicate) noexcept
+    template<typename F> requires sss::comparison<F, T>
+    constexpr forward_list<T>& forward_list<T>::sort(const F& predicate) noexcept
+    {
+        return this->sort(std::execution::seq, predicate);
+    }
+    template<typename T>
+    template<typename F> requires sss::comparison<F, T>
+    constexpr forward_list<T>& forward_list<T>::sort(F&& predicate) noexcept
+    {
+        return this->sort(std::execution::seq, std::move(predicate));
+    }
+    template<typename T>
+    template<typename P> requires sss::execution_policy<P>
+    constexpr forward_list<T>& forward_list<T>::sort(P policy) noexcept
+    {
+        return this->sort(policy, std::less<T> {});
+    }
+    template<typename T>
+    template<typename P, typename F> requires sss::execution_policy<P> && sss::comparison<F, T>
+    constexpr forward_list<T>& forward_list<T>::sort(P policy, const F& predicate) noexcept
     {
         // Do nothing if length is 0 or 1
         if(!this->first.has_value() || !this->first.value().next_link().has_value())
         {
-            return;
+            return *this;
         }
 
         // Split in halves
         forward_list b {this->first.value().split_in_half()};
 
         // Sort each half
-        this->sort(predicate);
-        b.sort(predicate);
+        if constexpr (sss::par_execution_policy<P>)
+        {
+            std::thread t1 {[&] () {
+                b.sort(policy, predicate);
+            }};
+            this->sort(policy, predicate);
+            t1.join();
+        }
+        else
+        {
+            this->sort(policy, predicate);
+            b.sort(policy, predicate);
+        }
 
         // Merge halves
-        this->merge(std::move(b), predicate);
+        return this->merge(std::move(b), predicate);
     }
     template<typename T>
-    template<typename F>
-    constexpr void forward_list<T>::sort(F&& predicate) noexcept
+    template<typename P, typename F> requires sss::execution_policy<P> && sss::comparison<F, T>
+    constexpr forward_list<T>& forward_list<T>::sort(P policy, F&& predicate) noexcept
     {
         // Do nothing if length is 0 or 1
         if(!this->first.has_value() || !this->first.value().next_link().has_value())
         {
-            return;
+            return *this;
         }
 
         // Split in halves
         forward_list b {this->first.value().split_in_half()};
 
         // Sort each half
-        this->sort(predicate);
-        b.sort(predicate);
+        if constexpr (sss::par_execution_policy<P>)
+        {
+            std::thread t1 {[&] () {
+                b.sort(policy, predicate);
+            }};
+            this->sort(policy, predicate);
+            t1.join();
+        }
+        else
+        {
+            this->sort(policy, predicate);
+            b.sort(policy, predicate);
+        }
 
         // Merge halves
-        this->merge(std::move(b), std::move(predicate));
+        return this->merge(std::move(b), predicate);
     }
 
     // Extra -----------------------------------------------------------------------------------------------------------
 
     template<typename T>
-    template<typename U, typename F>
-    constexpr forward_list<U> forward_list<T>::transform(const F& map) noexcept
+    template<typename F>
+    constexpr forward_list<std::invoke_result_t<F, T&&>> forward_list<T>::transform(const F& map) noexcept
     {
-        forward_list<U> o {};
+        forward_list<std::invoke_result_t<F, T&&>> o {};
         auto last {o.get_first_link()};
 
         while(true)
@@ -1196,10 +1253,10 @@ namespace sss
         return o;
     }
     template<typename T>
-    template<typename U, typename F>
-    constexpr forward_list<U> forward_list<T>::transform(F&& map) noexcept
+    template<typename F>
+    constexpr forward_list<std::invoke_result_t<F, T&&>> forward_list<T>::transform(F&& map) noexcept
     {
-        forward_list<U> o {};
+        forward_list<std::invoke_result_t<F, T&&>> o {};
         auto last {o.get_first_link()};
 
         while(true)
@@ -1221,6 +1278,40 @@ namespace sss
         }
 
         return o;
+    }
+    template<typename T>
+    template<typename P, typename F> requires sss::execution_policy<P>
+    constexpr forward_list<std::invoke_result_t<F, T&&>> forward_list<T>::transform(P policy, const F& map) noexcept
+    {
+        if constexpr (!sss::par_execution_policy<P>)
+        {
+            return this->transform(map);
+        }
+
+        return this->transform([&] (T&& x) {
+            return std::async([&] () {
+                return map(std::move(x));
+            });
+        }).transform([](std::future<std::invoke_result_t<F, T&&>> y) {
+            return y.get();
+        });
+    }
+    template<typename T>
+    template<typename P, typename F> requires sss::execution_policy<P>
+    constexpr forward_list<std::invoke_result_t<F, T&&>> forward_list<T>::transform(P policy, F&& map) noexcept
+    {
+        if constexpr (!sss::par_execution_policy<P>)
+        {
+            return this->transform(map);
+        }
+
+        return this->transform([&] (T&& x) {
+            return std::async([&] (T&& x) {
+                return map(std::move(x));
+            }, std::move(x));
+        }).transform([](std::future<std::invoke_result_t<F, T&&>> y) {
+            return y.get();
+        });
     }
 
     // Operators -------------------------------------------------------------------------------------------------------

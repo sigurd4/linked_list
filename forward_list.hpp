@@ -1,7 +1,10 @@
 #pragma once
 
+#include "concepts.hpp"
+
 #include <optional>
 #include <memory>
+#include <execution>
 
 namespace sss
 {
@@ -34,13 +37,13 @@ namespace sss
             constexpr forward_list(std::from_range_t, R&& range) noexcept;
 #endif
 
-            constexpr void assign(size_t count, const T& value) noexcept;
-            constexpr void assign(std::initializer_list<T> values) noexcept;
-            constexpr void assign(std::initializer_list<T> values) noexcept requires std::copyable<T>;
+            constexpr forward_list& assign(size_t count, const T& value) noexcept;
+            constexpr forward_list& assign(std::initializer_list<T> values) noexcept;
+            constexpr forward_list& assign(std::initializer_list<T> values) noexcept requires std::copyable<T>;
             template<typename R> requires std::ranges::range<R>
-            constexpr void assign_range(const R& range) noexcept;
+            constexpr forward_list& assign_range(const R& range) noexcept;
             template<typename R> requires std::ranges::range<R>
-            constexpr void assign_range(R&& range) noexcept;
+            constexpr forward_list& assign_range(R&& range) noexcept;
 
             // Element access ------------------------------------------------------------------------------------------
 
@@ -66,7 +69,7 @@ namespace sss
 
             // Modifiers -----------------------------------------------------------------------------------------------
             
-            constexpr void clear(void) noexcept;
+            constexpr forward_list& clear(void) noexcept;
             
             constexpr std::optional<T> insert(size_t position, const T& value) noexcept;
             constexpr std::optional<T> insert(size_t position, T&& value) noexcept;
@@ -86,54 +89,54 @@ namespace sss
             constexpr size_t erase(size_t position) noexcept;
             constexpr size_t erase(size_t first, size_t last) noexcept;
 
-            constexpr void push_back(const T& value) noexcept;
-            constexpr void push_back(T&& value) noexcept;
+            constexpr forward_list& push_back(const T& value) noexcept;
+            constexpr forward_list& push_back(T&& value) noexcept;
             template<typename... Args> requires std::constructible_from<T, Args...>
-            constexpr void emplace_back(Args&&... args) noexcept;
-            constexpr void append(const forward_list& value) noexcept;
-            constexpr void append(forward_list&& value) noexcept;
+            constexpr forward_list& emplace_back(Args&&... args) noexcept;
+            constexpr forward_list& append(const forward_list& value) noexcept;
+            constexpr forward_list& append(forward_list&& value) noexcept;
             template<typename R> requires std::ranges::range<R>
-            constexpr void append_range(const R& range) noexcept;
+            constexpr forward_list& append_range(const R& range) noexcept;
             template<typename R> requires std::ranges::range<R>
-            constexpr void append_range(R&& range) noexcept;
+            constexpr forward_list& append_range(R&& range) noexcept;
 
-            constexpr void push_front(const T& value) noexcept;
-            constexpr void push_front(T&& value) noexcept;
+            constexpr forward_list& push_front(const T& value) noexcept;
+            constexpr forward_list& push_front(T&& value) noexcept;
             template<typename... Args> requires std::constructible_from<T, Args...>
-            constexpr void emplace_front(Args&&... args) noexcept;
-            constexpr void prepend(const forward_list& value) noexcept;
-            constexpr void prepend(forward_list&& value) noexcept;
+            constexpr forward_list& emplace_front(Args&&... args) noexcept;
+            constexpr forward_list& prepend(const forward_list& value) noexcept;
+            constexpr forward_list& prepend(forward_list&& value) noexcept;
             template<typename R> requires std::ranges::range<R>
-            constexpr void prepend_range(const R& range) noexcept;
+            constexpr forward_list& prepend_range(const R& range) noexcept;
             template<typename R> requires std::ranges::range<R>
-            constexpr void prepend_range(R&& range) noexcept;
+            constexpr forward_list& prepend_range(R&& range) noexcept;
 
             constexpr std::optional<T> pop_back(void) noexcept;
             constexpr std::optional<T> pop_front(void) noexcept;
             
-            constexpr void resize(size_t size) noexcept;
-            constexpr void resize(size_t size, const T& value) noexcept;
+            constexpr forward_list& resize(size_t size) noexcept;
+            constexpr forward_list& resize(size_t size, const T& value) noexcept;
 
-            constexpr void swap(forward_list& list) noexcept;
+            constexpr forward_list& swap(forward_list& list) noexcept;
 
             // Operations ----------------------------------------------------------------------------------------------
 
-            constexpr void merge(const forward_list& list) noexcept;
-            constexpr void merge(forward_list&& list) noexcept;
+            constexpr forward_list& merge(const forward_list& list) noexcept;
+            constexpr forward_list& merge(forward_list&& list) noexcept;
             template<typename F>
-            constexpr void merge(const forward_list& list, const F& cmp) noexcept;
+            constexpr forward_list& merge(const forward_list& list, const F& cmp) noexcept;
             template<typename F>
-            constexpr void merge(forward_list&& list, const F& cmp) noexcept;
+            constexpr forward_list& merge(forward_list&& list, const F& cmp) noexcept;
             template<typename F>
-            constexpr void merge(const forward_list& list, F&& cmp) noexcept;
+            constexpr forward_list& merge(const forward_list& list, F&& cmp) noexcept;
             template<typename F>
-            constexpr void merge(forward_list&& list, F&& cmp) noexcept;
+            constexpr forward_list& merge(forward_list&& list, F&& cmp) noexcept;
 
-            constexpr void splice(size_t position, forward_list& list) noexcept;
+            constexpr forward_list& splice(size_t position, forward_list& list) noexcept;
             constexpr std::optional<forward_list> splice(size_t position, forward_list&& list) noexcept;
-            constexpr void splice(size_t position, forward_list& list, size_t from_position) noexcept;
+            constexpr forward_list& splice(size_t position, forward_list& list, size_t from_position) noexcept;
             constexpr std::optional<forward_list> splice(size_t position, forward_list&& list, size_t from_position) noexcept;
-            constexpr void splice(size_t position, forward_list& list, size_t from_first, size_t from_last) noexcept;
+            constexpr forward_list& splice(size_t position, forward_list& list, size_t from_first, size_t from_last) noexcept;
             constexpr std::optional<forward_list>
                 splice(size_t position, forward_list&& list, size_t from_first, size_t from_last) noexcept;
             
@@ -143,7 +146,7 @@ namespace sss
             template<typename F>
             constexpr size_t remove_if(F&& predicate) noexcept;
 
-            constexpr void reverse(void) noexcept;
+            constexpr forward_list& reverse(void) noexcept;
 
             constexpr size_t unique(void) noexcept;
             template<typename F>
@@ -151,25 +154,35 @@ namespace sss
             template<typename F>
             constexpr size_t unique(F&& predicate) noexcept;
 
-            constexpr void sort(void) noexcept;
-            template<typename F>
-            constexpr void sort(const F& predicate) noexcept;
-            template<typename F>
-            constexpr void sort(F&& predicate) noexcept;
+            constexpr forward_list& sort(void) noexcept;
+            template<typename F> requires sss::comparison<F, T>
+            constexpr forward_list& sort(const F& predicate) noexcept;
+            template<typename F> requires sss::comparison<F, T>
+            constexpr forward_list& sort(F&& predicate) noexcept;
+            template<typename P> requires sss::execution_policy<P>
+            constexpr forward_list& sort(P policy) noexcept;
+            template<typename P, typename F> requires sss::execution_policy<P> && sss::comparison<F, T>
+            constexpr forward_list& sort(P policy, const F& predicate) noexcept;
+            template<typename P, typename F> requires sss::execution_policy<P> && sss::comparison<F, T>
+            constexpr forward_list& sort(P policy, F&& predicate) noexcept;
 
             // Extra ---------------------------------------------------------------------------------------------------
             
-            template<typename U, typename F>
-            constexpr forward_list<U> transform(const F& map) noexcept;
-            template<typename U, typename F>
-            constexpr forward_list<U> transform(F&& map) noexcept;
+            template<typename F>
+            constexpr forward_list<std::invoke_result_t<F, T&&>> transform(const F& map) noexcept;
+            template<typename F>
+            constexpr forward_list<std::invoke_result_t<F, T&&>> transform(F&& map) noexcept;
+            template<typename P, typename F> requires sss::execution_policy<P>
+            constexpr forward_list<std::invoke_result_t<F, T&&>> transform(P policy, const F& map) noexcept;
+            template<typename P, typename F> requires sss::execution_policy<P>
+            constexpr forward_list<std::invoke_result_t<F, T&&>> transform(P policy, F&& map) noexcept;
 
             template<typename U>
-            template<typename V, typename F>
-            friend constexpr forward_list<V> forward_list<U>::transform(const F& map) noexcept;
+            template<typename F>
+            friend constexpr forward_list<std::invoke_result_t<F, U&&>> forward_list<U>::transform(const F& map) noexcept;
             template<typename U>
-            template<typename V, typename F>
-            friend constexpr forward_list<V> forward_list<U>::transform(F&& map) noexcept;
+            template<typename F>
+            friend constexpr forward_list<std::invoke_result_t<F, U&&>> forward_list<U>::transform(F&& map) noexcept;
 
             // Operators -----------------------------------------------------------------------------------------------
 

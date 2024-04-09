@@ -4,6 +4,7 @@
 #include <array>
 #include <string>
 #include <list>
+#include <execution>
 
 #include "list.hpp"
 #include "forward_list.hpp"
@@ -410,12 +411,15 @@ int main()
     test_modifiers<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
     test_operations<sss::forward_list<int_nocopy>, sss::forward_list<int>>();
 
-    sss::list<int> list1 {1, 2, 3};
+    sss::list<int> list1 {5, 3, 6, 4, 1, 2};
+    
+    constexpr bool TEST {sss::par_execution_policy<std::execution::parallel_policy>};
 
-    const sss::list<int> list2 {4, 5, 6};
-    list1.append_range(list2);
+    list1.sort(std::execution::par);
 
-    std::cout << fmt_list(list1) << std::endl;
+    sss::list<char> list2 {list1.transform(std::execution::par, [] (int&& x) {return static_cast<char>(x);})};
+
+    std::cout << fmt_list(list2) << std::endl;
 }
 
 template<typename L>
