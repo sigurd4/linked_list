@@ -35,7 +35,7 @@ namespace sss
     }
     
     template<typename T>
-    template<typename... Args>
+    template<typename... Args> requires std::constructible_from<T, Args...>
     constexpr typename forward_list<T>::link forward_list<T>::link::make(Args&&... args)
     {
         return {T(std::move(args)...)};

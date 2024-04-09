@@ -57,14 +57,14 @@ namespace sss
     
 #if _HAS_CXX23 && defined(__cpp_lib_concepts)
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr forward_list<T>::forward_list(std::from_range_t, const R& range) noexcept:
         forward_list()
     {
         this->assign_range(range);
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr forward_list<T>::forward_list(std::from_range_t, R&& range) noexcept:
         forward_list()
     {
@@ -103,7 +103,7 @@ namespace sss
         }
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr void forward_list<T>::assign_range(const R& values) noexcept
     {
         this->clear();
@@ -124,7 +124,7 @@ namespace sss
         }
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr void forward_list<T>::assign_range(R&& values) noexcept
     {
         this->clear();
@@ -305,7 +305,7 @@ namespace sss
         return this->insert(position, forward_list(values));
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr std::optional<forward_list<T>> forward_list<T>::insert_range(size_t position, const R& range) noexcept
     {
         forward_list list {};
@@ -313,7 +313,7 @@ namespace sss
         return this->insert(position, std::move(list));
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr std::optional<forward_list<T>> forward_list<T>::insert_range(size_t position, R&& range) noexcept
     {
         forward_list list {};
@@ -321,7 +321,7 @@ namespace sss
         return this->insert(position, std::move(list));
     }
     template<typename T>
-    template<typename... Args>
+    template<typename... Args> requires std::constructible_from<T, Args...>
     constexpr std::optional<T> forward_list<T>::emplace(size_t position, Args&&... args) noexcept
     {
         if(position == 0)
@@ -490,7 +490,7 @@ namespace sss
         return this->emplace_back(std::move(value));
     }
     template<typename T>
-    template<typename... Args>
+    template<typename... Args> requires std::constructible_from<T, Args...>
     constexpr void forward_list<T>::emplace_back(Args&&... args) noexcept
     {
         if(!this->first.has_value())
@@ -523,7 +523,7 @@ namespace sss
         last.append(std::move(list.first.value()));
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr void forward_list<T>::append_range(R&& range) noexcept
     {
         forward_list list {};
@@ -531,7 +531,7 @@ namespace sss
         return this->append(std::move(list));
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr void forward_list<T>::append_range(const R& range) noexcept
     {
         forward_list list {};
@@ -550,7 +550,7 @@ namespace sss
         return this->emplace_front(std::move(value));
     }
     template<typename T>
-    template<typename... Args>
+    template<typename... Args> requires std::constructible_from<T, Args...>
     constexpr void forward_list<T>::emplace_front(Args&&... args) noexcept
     {
         if(!this->first.has_value())
@@ -581,7 +581,7 @@ namespace sss
         this->first.value().prepend(std::move(list.first.value()));
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr void forward_list<T>::prepend_range(R&& range) noexcept
     {
         forward_list list {};
@@ -589,7 +589,7 @@ namespace sss
         return this->prepend(std::move(list));
     }
     template<typename T>
-    template<typename R>
+    template<typename R> requires std::ranges::range<R>
     constexpr void forward_list<T>::prepend_range(const R& range) noexcept
     {
         forward_list list {};
@@ -1152,7 +1152,7 @@ namespace sss
     // Extra -----------------------------------------------------------------------------------------------------------
 
     template<typename T>
-    template<typename U, typename F>
+    template<typename U, typename F> requires std::is_function_v<F>
     constexpr forward_list<U> forward_list<T>::transform(const F& map) noexcept
     {
         forward_list<U> o {};
@@ -1179,7 +1179,7 @@ namespace sss
         return o;
     }
     template<typename T>
-    template<typename U, typename F>
+    template<typename U, typename F> requires std::is_function_v<F>
     constexpr forward_list<U> forward_list<T>::transform(F&& map) noexcept
     {
         forward_list<U> o {};

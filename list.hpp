@@ -29,17 +29,17 @@ namespace sss
             constexpr list(list&& list) noexcept;
             constexpr list(std::initializer_list<T> values) noexcept;
 #if _HAS_CXX23 && defined(__cpp_lib_concepts)
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr list(std::from_range_t, const R& range) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr list(std::from_range_t, R&& range) noexcept;
 #endif
 
             constexpr void assign(size_t count, const T& value) noexcept;
             constexpr void assign(std::initializer_list<T> values) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr void assign_range(const R& range) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr void assign_range(R&& range) noexcept;
 
             // Element access ------------------------------------------------------------------------------------------
@@ -81,11 +81,11 @@ namespace sss
             constexpr std::optional<list> insert(size_t position, const list& list) noexcept;
             constexpr std::optional<list> insert(size_t position, size_t count, const T& value) noexcept;
             constexpr std::optional<list> insert(size_t position, std::initializer_list<T> list) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr std::optional<list> insert_range(size_t position, const R& range) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr std::optional<list> insert_range(size_t position, R&& range) noexcept;
-            template<typename... Args>
+            template<typename... Args> requires std::constructible_from<T, Args...>
             constexpr std::optional<T> emplace(size_t position, Args&&... args) noexcept;
             
             constexpr std::optional<T> take(size_t position) noexcept;
@@ -95,24 +95,24 @@ namespace sss
             
             constexpr void push_back(const T& value) noexcept;
             constexpr void push_back(T&& value) noexcept;
-            template<typename... Args>
+            template<typename... Args> requires std::constructible_from<T, Args...>
             constexpr void emplace_back(Args&&... args) noexcept;
             constexpr void append(const list& value) noexcept;
             constexpr void append(list&& value) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr void append_range(const R& range) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr void append_range(R&& range) noexcept;
             
             constexpr void push_front(const T& value) noexcept;
             constexpr void push_front(T&& value) noexcept;
-            template<typename... Args>
+            template<typename... Args> requires std::constructible_from<T, Args...>
             constexpr void emplace_front(Args&&... args) noexcept;
             constexpr void prepend(const list& value) noexcept;
             constexpr void prepend(list&& value) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr void prepend_range(const R& range) noexcept;
-            template<typename R>
+            template<typename R> requires std::ranges::range<R>
             constexpr void prepend_range(R&& range) noexcept;
 
             constexpr std::optional<T> pop_back(void) noexcept;
@@ -166,16 +166,16 @@ namespace sss
 
             // Extra ---------------------------------------------------------------------------------------------------
 
-            template<typename U, typename F>
+            template<typename U, typename F> requires std::is_function_v<F>
             constexpr list<U> transform(const F& map) noexcept;
-            template<typename U, typename F>
+            template<typename U, typename F> requires std::is_function_v<F>
             constexpr list<U> transform(F&& map) noexcept;
 
             template<typename U>
-            template<typename V, typename F>
+            template<typename V, typename F> requires std::is_function_v<F>
             friend constexpr list<V> list<U>::transform(const F& map) noexcept;
             template<typename U>
-            template<typename V, typename F>
+            template<typename V, typename F> requires std::is_function_v<F>
             friend constexpr list<V> list<U>::transform(F&& map) noexcept;
 
             // Operators -----------------------------------------------------------------------------------------------

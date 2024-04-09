@@ -21,7 +21,7 @@ namespace sss
             constexpr link(link&& link) noexcept;
             constexpr link(T&& value) noexcept;
 
-            template<typename... Args>
+            template<typename... Args> requires std::constructible_from<T, Args...>
             static constexpr link make(Args&&... args);
 
             constexpr const_iterator cbegin(void) const noexcept;
