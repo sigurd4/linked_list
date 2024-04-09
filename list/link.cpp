@@ -124,7 +124,7 @@ namespace sss
             {
                 if(!ptr->prev.has_value() || &ptr->prev.value().get() != this)
                 {
-                    throw "Broken chain on next";
+                    std::terminate();
                 }
                 return {*ptr.get()};
             }
@@ -142,7 +142,7 @@ namespace sss
             {
                 if(!ptr->prev.has_value() || &ptr->prev.value().get() != this)
                 {
-                    throw "Broken chain on next";
+                    std::terminate();
                 }
                 return {*ptr.get()};
             }
@@ -157,7 +157,7 @@ namespace sss
         {
             if(!this->prev.value().get().next.has_value() || &*this->prev.value().get().next.value() != this)
             {
-                throw "Broken chain on prev";
+                std::terminate();
             }
             return this->prev.value();
         }
@@ -171,7 +171,7 @@ namespace sss
         {
             if(!this->prev.value().get().next.has_value() || &*this->prev.value().get().next.value() != this)
             {
-                throw "Broken chain on prev";
+                std::terminate();
             }
             return this->prev.value();
         }
