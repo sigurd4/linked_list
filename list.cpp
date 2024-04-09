@@ -101,6 +101,25 @@ namespace sss
         }
     }
     template<typename T>
+    constexpr void list<T>::assign(std::initializer_list<T> values) noexcept requires std::copyable<T>
+    {
+        this->clear();
+
+        std::optional<std::reference_wrapper<link>> last {};
+        for(T value : values)
+        {
+            if(!last.has_value())
+            {
+                this->first = std::move(value);
+                last = {this->first.value()};
+            }
+            else
+            {
+                last = {last.value().get().append(std::move(value))};
+            }
+        }
+    }
+    template<typename T>
     template<typename R> requires std::ranges::range<R>
     constexpr void list<T>::assign_range(const R& values) noexcept
     {
@@ -367,12 +386,12 @@ namespace sss
             std::optional<std::reference_wrapper<link>> current {this->get_first_link()};
             if(current.has_value())
             {
-                current.value().get().prepend(link::make(args...));
+                current.value().get().prepend(link::make(std::move(args)...));
                 return {};
             }
             else
             {
-                this->first = link::make(args...);
+                this->first = link::make(std::move(args)...);
                 return {};
             }
         }
@@ -381,7 +400,7 @@ namespace sss
         std::optional<std::reference_wrapper<link>> prev {iter.get_link()};
         if(prev.has_value())
         {
-            prev.value().get().append(link::make(args...));
+            prev.value().get().append(link::make(std::move(args)...));
             return {};
         }
         return {T(std::move(args)...)};
@@ -397,12 +416,12 @@ namespace sss
         {
             std::optional<std::reference_wrapper<link>> prev = current.value().get().prev_link();
             bool is_first = !prev.has_value();
-            std::pair<link, std::optional<link>> pop = current.value().get().pop(prev);
+            auto [pop, first] = current.value().get().pop(prev);
             if(is_first)
             {
-                this->first = std::move(pop.second);
+                this->first = std::move(first);
             }
-            return std::move(pop.first.value);
+            return std::move(pop.value);
         }
         return {};
     }
@@ -439,12 +458,12 @@ namespace sss
                 current = next;
             }
             bool is_first = !prev.has_value();
-            std::pair<link, std::optional<link>> pop = current.value().get().pop(prev);
+            auto [pop, first] = current.value().get().pop(prev);
             if(is_first)
             {
-                this->first = std::move(pop.second);
+                this->first = std::move(first);
             }
-            list o {std::move(pop.first)};
+            list o {std::move(pop)};
             return {std::move(o)};
         }
         return {};
@@ -494,10 +513,10 @@ namespace sss
                 current = next;
             }
             bool is_first = !prev.has_value();
-            std::pair<link, std::optional<link>> pop = current.value().get().pop(prev);
+            auto [_, first] = current.value().get().pop(prev);
             if(is_first)
             {
-                this->first = std::move(pop.second);
+                this->first = std::move(first);
             }
             return n;
         }
@@ -520,12 +539,12 @@ namespace sss
     {
         if(!this->first.has_value())
         {
-            std::optional<link> first {link::make(args...)};
+            std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
             return;
         }
         link& last = this->first.value().last_link();
-        last.append(link::make(args...));
+        last.append(link::make(std::move(args)...));
     }
     template<typename T>
     constexpr void list<T>::append(const list& list) noexcept
@@ -580,11 +599,11 @@ namespace sss
     {
         if(!this->first.has_value())
         {
-            std::optional<link> first {link::make(args...)};
+            std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
             return;
         }
-        this->first.value().prepend(link::make(args...));
+        this->first.value().prepend(link::make(std::move(args)...));
     }
     template<typename T>
     constexpr void list<T>::prepend(const list& list) noexcept
@@ -634,8 +653,8 @@ namespace sss
 
         std::optional<std::reference_wrapper<link>> prev = last.prev_link();
         bool empty = !prev.has_value();
-        std::pair<link, std::optional<link>> pop = last.pop(prev);
-        T value = std::move(pop.first.value);
+        auto [pop, _] = last.pop(prev);
+        T value = std::move(pop.value);
         if(empty)
         {
             this->first = {};
@@ -649,9 +668,9 @@ namespace sss
         {
             return {};
         }
-        std::pair<link, std::optional<link>> pop = this->get_first_link().value().get().pop({});
-        T value = std::move(pop.first.value);
-        this->first = std::move(pop.second);
+        auto [pop, first] = this->get_first_link().value().get().pop({});
+        T value = std::move(pop.value);
+        this->first = std::move(first);
 
         return {std::move(value)};
     }
@@ -975,10 +994,10 @@ namespace sss
             {
                 std::optional<std::reference_wrapper<link>> prev = current.value().get().prev_link();
                 bool is_first = !prev.has_value();
-                std::pair<link, std::optional<link>> pop = current.value().get().pop(prev);
+                auto [_, first] = current.value().get().pop(prev);
                 if(is_first)
                 {
-                    this->first = std::move(pop.second);
+                    this->first = std::move(first);
                     current = this->get_first_link();
                 }
                 else
@@ -1010,10 +1029,10 @@ namespace sss
             {
                 std::optional<std::reference_wrapper<link>> prev = current.value().get().prev_link();
                 bool is_first = !prev.has_value();
-                std::pair<link, std::optional<link>> pop = current.value().get().pop(prev);
+                auto [_, first] = current.value().get().pop(prev);
                 if(is_first)
                 {
-                    this->first = std::move(pop.second);
+                    this->first = std::move(first);
                     current = this->get_first_link();
                 }
                 else
@@ -1085,10 +1104,10 @@ namespace sss
             {
                 std::optional<std::reference_wrapper<link>> prev {current.value().get().prev_link()};
                 bool is_first = !prev.has_value();
-                std::pair<link, std::optional<link>> pop = current.value().get().pop(prev);
+                auto [_, first] = current.value().get().pop(prev);
                 if(is_first)
                 {
-                    this->first = std::move(pop.second);
+                    this->first = std::move(first);
                     current = this->get_first_link();
                 }
                 else
@@ -1140,10 +1159,10 @@ namespace sss
             {
                 std::optional<std::reference_wrapper<link>> prev {current.value().get().prev_link()};
                 bool is_first = !prev.has_value();
-                std::pair<link, std::optional<link>> pop = current.value().get().pop(prev);
+                auto [_, first] = current.value().get().pop(prev);
                 if(is_first)
                 {
-                    this->first = std::move(pop.second);
+                    this->first = std::move(first);
                     current = this->get_first_link();
                 }
                 else
@@ -1215,7 +1234,7 @@ namespace sss
     // Extra -----------------------------------------------------------------------------------------------------------
     
     template<typename T>
-    template<typename U, typename F> requires std::is_function_v<F>
+    template<typename U, typename F>
     constexpr list<U> list<T>::transform(const F& map) noexcept
     {
         list<U> o {};
@@ -1242,7 +1261,7 @@ namespace sss
         return o;
     }
     template<typename T>
-    template<typename U, typename F> requires std::is_function_v<F>
+    template<typename U, typename F>
     constexpr list<U> list<T>::transform(F&& map) noexcept
     {
         list<U> o {};

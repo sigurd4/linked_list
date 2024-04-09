@@ -3,6 +3,7 @@
 #include <sstream>
 #include <array>
 #include <string>
+#include <list>
 
 #include "list.hpp"
 #include "forward_list.hpp"
@@ -411,10 +412,10 @@ int main()
 
     sss::list<int> list1 {1, 2, 3};
 
-    for(auto x : list1.rbegin())
-    {
-        std::cout << x << std::endl;
-    }
+    const sss::list<int> list2 {4, 5, 6};
+    list1.append_range(list2);
+
+    std::cout << fmt_list(list1) << std::endl;
 }
 
 template<typename L>

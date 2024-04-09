@@ -7,6 +7,13 @@ namespace sss
     template<typename T>
     class forward_list<T>::const_iterator
     {
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type        = T;
+            using difference_type   = std::make_signed_t<size_t>;
+            using pointer           = const T*;
+            using reference         = const T&;
+
         private:
             std::optional<std::reference_wrapper<const link>> link;
 

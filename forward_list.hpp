@@ -36,6 +36,7 @@ namespace sss
 
             constexpr void assign(size_t count, const T& value) noexcept;
             constexpr void assign(std::initializer_list<T> values) noexcept;
+            constexpr void assign(std::initializer_list<T> values) noexcept requires std::copyable<T>;
             template<typename R> requires std::ranges::range<R>
             constexpr void assign_range(const R& range) noexcept;
             template<typename R> requires std::ranges::range<R>
@@ -158,16 +159,16 @@ namespace sss
 
             // Extra ---------------------------------------------------------------------------------------------------
             
-            template<typename U, typename F> requires std::is_function_v<F>
+            template<typename U, typename F>
             constexpr forward_list<U> transform(const F& map) noexcept;
-            template<typename U, typename F> requires std::is_function_v<F>
+            template<typename U, typename F>
             constexpr forward_list<U> transform(F&& map) noexcept;
 
             template<typename U>
-            template<typename V, typename F> requires std::is_function_v<F>
+            template<typename V, typename F>
             friend constexpr forward_list<V> forward_list<U>::transform(const F& map) noexcept;
             template<typename U>
-            template<typename V, typename F> requires std::is_function_v<F>
+            template<typename V, typename F>
             friend constexpr forward_list<V> forward_list<U>::transform(F&& map) noexcept;
 
             // Operators -----------------------------------------------------------------------------------------------

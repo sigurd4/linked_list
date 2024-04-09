@@ -10,6 +10,13 @@ namespace sss
     template<typename T>
     class list<T>::iterator
     {
+        public:
+            using iterator_category = std::bidirectional_iterator_tag;
+            using value_type        = T;
+            using difference_type   = std::make_signed_t<size_t>;
+            using pointer           = T*;
+            using reference         = T&;
+
         private:
             std::optional<std::reference_wrapper<link>> link;
             

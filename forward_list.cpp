@@ -92,8 +92,26 @@ namespace sss
 
             if(!last.has_value())
             {
-                std::optional<link> first {link{std::move(value)}};
-                this->first.swap(first);
+                this->first = std::move(value);
+                last = {this->first.value()};
+            }
+            else
+            {
+                last = {last.value().get().append(std::move(value))};
+            }
+        }
+    }
+    template<typename T>
+    constexpr void forward_list<T>::assign(std::initializer_list<T> values) noexcept requires std::copyable<T>
+    {
+        this->clear();
+
+        std::optional<std::reference_wrapper<link>> last {};
+        for(T value : values)
+        {
+            if(!last.has_value())
+            {
+                this->first = std::move(value);
                 last = {this->first.value()};
             }
             else
@@ -329,12 +347,12 @@ namespace sss
             std::optional<std::reference_wrapper<link>> current {this->get_first_link()};
             if(current.has_value())
             {
-                current.value().get().prepend(link::make(args...));
+                current.value().get().prepend(link::make(std::move(args)...));
                 return {};
             }
             else
             {
-                this->first = link::make(args...);
+                this->first = link::make(std::move(args)...);
                 return {};
             }
         }
@@ -343,7 +361,7 @@ namespace sss
         std::optional<std::reference_wrapper<link>> prev {iter.get_link()};
         if(prev.has_value())
         {
-            prev.value().get().append(link::make(args...));
+            prev.value().get().append(link::make(std::move(args)...));
             return {};
         }
         return {T(std::move(args)...)};
@@ -364,12 +382,12 @@ namespace sss
         if(current.has_value())
         {
             bool is_first = !prev.has_value();
-            std::pair<link, std::optional<link>> pop = current.value().get().pop(prev, prev, this->first.value());
+            auto [pop, first] = current.value().get().pop(prev, prev, this->first.value());
             if(is_first)
             {
-                this->first = std::move(pop.second);
+                this->first = std::move(first);
             }
-            return std::move(pop.first.value);
+            return std::move(pop.value);
         }
         return {};
     }
@@ -408,14 +426,14 @@ namespace sss
                 current = next;
             }
             bool is_first = !prev.has_value();
-            std::pair<link, std::optional<link>> pop = current.value()
+            auto [pop, first] = current.value()
                 .get()
                 .pop(prev, direct_prev, this->first.value());
             if(is_first)
             {
-                this->first = std::move(pop.second);
+                this->first = std::move(first);
             }
-            forward_list o {std::move(pop.first)};
+            forward_list o {std::move(pop)};
             return {std::move(o)};
         }
         return {};
@@ -467,12 +485,12 @@ namespace sss
                 current = next;
             }
             bool is_first = !prev.has_value();
-            std::pair<link, std::optional<link>> pop = current.value()
+            auto [_, first] = current.value()
                 .get()
                 .pop(prev, direct_prev, this->first.value());
             if(is_first)
             {
-                this->first = std::move(pop.second);
+                this->first = std::move(first);
             }
             return n;
         }
@@ -495,12 +513,12 @@ namespace sss
     {
         if(!this->first.has_value())
         {
-            std::optional<link> first {link::make(args...)};
+            std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
             return;
         }
         link& last = this->first.value().last_link();
-        last.append(link::make(args...));
+        last.append(link::make(std::move(args)...));
     }
     template<typename T>
     constexpr void forward_list<T>::append(const forward_list& list) noexcept
@@ -555,11 +573,11 @@ namespace sss
     {
         if(!this->first.has_value())
         {
-            std::optional<link> first {link::make(args...)};
+            std::optional<link> first {link::make(std::move(args)...)};
             this->first.swap(first);
             return;
         }
-        this->first.value().prepend(link::make(args...));
+        this->first.value().prepend(link::make(std::move(args)...));
     }
     template<typename T>
     constexpr void forward_list<T>::prepend(const forward_list& list) noexcept
@@ -605,11 +623,11 @@ namespace sss
             return {};
         }
         link& first = this->first.value();
-        std::pair<std::optional<std::reference_wrapper<link>>, link&> last_two = first.last_two_links();
+        auto [second_last, last] = first.last_two_links();
 
-        bool empty = !last_two.first.has_value();
-        std::pair<link, std::optional<link>> pop = last_two.second.pop(last_two.first, last_two.first, first);
-        T value = std::move(pop.first.value);
+        bool empty = !second_last.has_value();
+        auto [pop, _] = last.pop(second_last, last, first);
+        T value = std::move(pop.value);
         if(empty)
         {
             this->first = {};
@@ -623,10 +641,9 @@ namespace sss
         {
             return {};
         }
-        link& first {this->first.value()};
-        std::pair<link, std::optional<link>> pop = first.pop({}, {}, first);
-        T value = std::move(pop.first.value);
-        this->first = std::move(pop.second);
+        auto [pop, first] = this->first.value().pop({}, {}, this->first.value());
+        T value = std::move(pop.value);
+        this->first = std::move(first);
 
         return {std::move(value)};
     }
@@ -905,10 +922,10 @@ namespace sss
             if(predicate(current.value().get().value))
             {
                 bool is_first = !prev.has_value();
-                std::pair<T, std::optional<link>> pop = current.value().get().pop(prev, prev, this->first.value());
+                auto [_, first] = current.value().get().pop(prev, prev, this->first.value());
                 if(is_first)
                 {
-                    this->first = pop.second;
+                    this->first = first;
                     current = this->get_first_link();
                 }
                 else
@@ -941,10 +958,10 @@ namespace sss
             if(predicate(current.value().get().value))
             {
                 bool is_first = !prev.has_value();
-                std::pair<link, std::optional<link>> pop = current.value().get().pop(prev, prev, this->first.value());
+                auto [_, first] = current.value().get().pop(prev, prev, this->first.value());
                 if(is_first)
                 {
-                    this->first = std::move(pop.second);
+                    this->first = std::move(first);
                     current = this->get_first_link();
                 }
                 else
@@ -1020,10 +1037,10 @@ namespace sss
             if(should_delete)
             {
                 bool is_first = !prev.has_value();
-                std::pair<T, std::optional<link>> pop = current.value().get().pop(prev, prev, this->first.value());
+                auto [_, first] = current.value().get().pop(prev, prev, this->first.value());
                 if(is_first)
                 {
-                    this->first = std::move(pop.second);
+                    this->first = std::move(first);
                     current = this->get_first_link();
                 }
                 else
@@ -1076,10 +1093,10 @@ namespace sss
             if(should_delete)
             {
                 bool is_first = !prev.has_value();
-                std::pair<link, std::optional<link>> pop = current.value().get().pop(prev, prev, this->first.value());
+                auto [_, first] = current.value().get().pop(prev, prev, this->first.value());
                 if(is_first)
                 {
-                    this->first = std::move(pop.second);
+                    this->first = std::move(first);
                     current = this->get_first_link();
                 }
                 else
@@ -1152,7 +1169,7 @@ namespace sss
     // Extra -----------------------------------------------------------------------------------------------------------
 
     template<typename T>
-    template<typename U, typename F> requires std::is_function_v<F>
+    template<typename U, typename F>
     constexpr forward_list<U> forward_list<T>::transform(const F& map) noexcept
     {
         forward_list<U> o {};
@@ -1179,7 +1196,7 @@ namespace sss
         return o;
     }
     template<typename T>
-    template<typename U, typename F> requires std::is_function_v<F>
+    template<typename U, typename F>
     constexpr forward_list<U> forward_list<T>::transform(F&& map) noexcept
     {
         forward_list<U> o {};
