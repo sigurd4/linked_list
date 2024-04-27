@@ -174,6 +174,13 @@ namespace sss
             template<typename P, typename F> requires sss::execution_policy<P> && sss::comparison<F, T>
             constexpr list& sort(P policy, F&& predicate) noexcept;
 
+        private:
+            template<typename F> requires sss::comparison<F, T>
+            constexpr list& sort_par(const F& predicate, size_t threads) noexcept;
+            template<typename F> requires sss::comparison<F, T>
+            constexpr list& sort_par(F&& predicate, size_t threads) noexcept;
+        public:
+
             // Extra ---------------------------------------------------------------------------------------------------
 
             template<typename F>

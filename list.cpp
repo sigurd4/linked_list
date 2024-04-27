@@ -1243,15 +1243,25 @@ namespace sss
         list b {this->first.value().split_in_half()};
 
         // Sort each half
-        if constexpr (sss::par_execution_policy<P>)
+        bool par = sss::par_execution_policy<P>;
+        if(par)
         {
-            std::thread t1 {[&] () {
-                b.sort(policy, predicate);
-            }};
-            this->sort(policy, predicate);
-            t1.join();
+            size_t cores = std::thread::hardware_concurrency();
+            
+            if(cores >= 2)
+            {
+                std::thread t1 {[&] () {
+                    b.sort_par(predicate, cores/2);
+                }};
+                this->sort_par(predicate, cores/2 + cores % 2);
+                t1.join();
+            }
+            else
+            {
+                par = false;
+            }
         }
-        else
+        if(!par)
         {
             this->sort(policy, predicate);
             b.sort(policy, predicate);
@@ -1274,18 +1284,91 @@ namespace sss
         list b {this->first.value().split_in_half()};
 
         // Sort each half
-        if constexpr (sss::par_execution_policy<P>)
+        bool par = sss::par_execution_policy<P>;
+        if(par)
+        {
+            size_t cores = std::thread::hardware_concurrency();
+            
+            if(cores >= 2)
+            {
+                std::thread t1 {[&] () {
+                    b.sort_par(predicate, cores/2);
+                }};
+                this->sort_par(predicate, cores/2 + cores % 2);
+                t1.join();
+            }
+            else
+            {
+                par = false;
+            }
+        }
+        if(!par)
+        {
+            this->sort(predicate);
+            b.sort(predicate);
+        }
+
+        // Merge halves
+        return this->merge(std::move(b), predicate);
+    }
+    
+    template<typename T>
+    template<typename F> requires sss::comparison<F, T>
+    constexpr list<T>& list<T>::sort_par(F&& predicate, size_t threads) noexcept
+    {
+        // Do nothing if length is 0 or 1
+        if(!this->first.has_value() || !this->first.value().next_link().has_value())
+        {
+            return *this;
+        }
+
+        // Split in halves
+        list b {this->first.value().split_in_half()};
+
+        // Sort each half
+        if(threads >= 2)
         {
             std::thread t1 {[&] () {
-                b.sort(policy, predicate);
+                b.sort_par(predicate, threads/2);
             }};
-            this->sort(policy, predicate);
+            this->sort_par(predicate, threads/2 + threads % 2);
             t1.join();
         }
         else
         {
-            this->sort(policy, predicate);
-            b.sort(policy, predicate);
+            this->sort(predicate);
+            b.sort(predicate);
+        }
+
+        // Merge halves
+        return this->merge(std::move(b), predicate);
+    }
+    template<typename T>
+    template<typename F> requires sss::comparison<F, T>
+    constexpr list<T>& list<T>::sort_par(const F& predicate, size_t threads) noexcept
+    {
+        // Do nothing if length is 0 or 1
+        if(!this->first.has_value() || !this->first.value().next_link().has_value())
+        {
+            return *this;
+        }
+
+        // Split in halves
+        list b {this->first.value().split_in_half()};
+
+        // Sort each half
+        if(threads >= 2)
+        {
+            std::thread t1 {[&] () {
+                b.sort_par(predicate, threads/2);
+            }};
+            this->sort_par(predicate, threads/2 + threads % 2);
+            t1.join();
+        }
+        else
+        {
+            this->sort(predicate);
+            b.sort(predicate);
         }
 
         // Merge halves
